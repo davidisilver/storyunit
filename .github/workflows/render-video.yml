@@ -99,7 +99,7 @@ jobs:
             
             // Bundle the video composition
             const bundled = await bundle({
-              entryPoint: path.join(process.cwd(), 'src/remotion-entry.tsx'),
+              entryPoint: path.join(process.cwd(), 'src/remotion-entry.js'),
               webpackOverride: (config) => {
                 // Add path aliases to resolve @/ imports
                 config.resolve.alias = {
