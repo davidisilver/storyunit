@@ -9,13 +9,18 @@ import {
 
 // Get composition data from input props or fallback to sample data
 const getCompositionData = (inputProps: any = {}) => {
+  console.log("getCompositionData called with inputProps:", inputProps);
+  
   // Try to get composition data from input props first
   if (inputProps.compositionData) {
+    console.log("Found compositionData in inputProps:", inputProps.compositionData);
     try {
       return inputProps.compositionData;
     } catch (e) {
       console.log("Could not parse composition data from input props");
     }
+  } else {
+    console.log("No compositionData found in inputProps, using fallback");
   }
 
   // Fallback to sample data for testing
@@ -89,9 +94,12 @@ const TextOverlay = ({
 
 // Main composition component with simplified rendering
 const MainComposition = (props: any) => {
-  const compositionData = getCompositionData(props);
-
   console.log("MainComposition is being executed!");
+  console.log("MainComposition props:", props);
+  console.log("MainComposition props.compositionData:", props.compositionData);
+  
+  const compositionData = getCompositionData(props);
+  
   console.log("MainComposition rendering with data:", {
     projectId: compositionData.project?.id,
     tracksCount: compositionData.tracks?.length || 0,
