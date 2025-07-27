@@ -92,7 +92,15 @@ const TextOverlay = ({
 
 // Main composition component with simplified rendering
 const MainComposition = () => {
-  console.log('MainComposition is being executed!');
+  const compositionData = getCompositionData();
+  
+  console.log("MainComposition is being executed!");
+  console.log('MainComposition rendering with data:', {
+    projectId: compositionData.project?.id,
+    tracksCount: compositionData.tracks?.length || 0,
+    framesCount: Object.keys(compositionData.frames || {}).length,
+    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length
+  });
   
   return (
     <AbsoluteFill
@@ -110,6 +118,12 @@ const MainComposition = () => {
         <div>MAIN COMPOSITION</div>
         <div style={{ fontSize: "40px", marginTop: "20px" }}>
           This should be visible!
+        </div>
+        <div style={{ fontSize: "24px", marginTop: "10px" }}>
+          Tracks: {compositionData.tracks?.length || 0}
+        </div>
+        <div style={{ fontSize: "24px" }}>
+          Media: {Object.keys(compositionData.mediaItems || {}).length}
         </div>
       </div>
     </AbsoluteFill>
