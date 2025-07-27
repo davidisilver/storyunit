@@ -67,12 +67,21 @@ export const useJobCreator = ({
 export const useSavedPromptCreator = (projectId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (prompt: Omit<SavedPrompt, "id" | "projectId" | "createdAt">) =>
-      db.savedPrompts.create({
-        ...prompt,
-        projectId,
-        createdAt: Date.now(),
-      }),
+    mutationFn: async (prompt: Omit<SavedPrompt, "id" | "projectId" | "createdAt">) => {
+      try {
+        console.log("Creating saved prompt:", { ...prompt, projectId });
+        const result = await db.savedPrompts.create({
+          ...prompt,
+          projectId,
+          createdAt: Date.now(),
+        });
+        console.log("Saved prompt created:", result);
+        return result;
+      } catch (error) {
+        console.error("Error creating saved prompt:", error);
+        throw error;
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.projectSavedPrompts(projectId),

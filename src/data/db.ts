@@ -8,27 +8,39 @@ import type {
 } from "./schema";
 
 function open() {
-  return openDB("ai-vstudio-db-v2", 1, {
-    upgrade(db) {
-      db.createObjectStore("projects", { keyPath: "id" });
+  return openDB("ai-vstudio-db-v2", 2, {
+    upgrade(db, oldVersion, newVersion) {
+      // Create tables if they don't exist
+      if (!db.objectStoreNames.contains("projects")) {
+        db.createObjectStore("projects", { keyPath: "id" });
+      }
 
-      const trackStore = db.createObjectStore("tracks", { keyPath: "id" });
-      trackStore.createIndex("by_projectId", "projectId");
+      if (!db.objectStoreNames.contains("tracks")) {
+        const trackStore = db.createObjectStore("tracks", { keyPath: "id" });
+        trackStore.createIndex("by_projectId", "projectId");
+      }
 
-      const keyFrameStore = db.createObjectStore("keyFrames", {
-        keyPath: "id",
-      });
-      keyFrameStore.createIndex("by_trackId", "trackId");
+      if (!db.objectStoreNames.contains("keyFrames")) {
+        const keyFrameStore = db.createObjectStore("keyFrames", {
+          keyPath: "id",
+        });
+        keyFrameStore.createIndex("by_trackId", "trackId");
+      }
 
-      const mediaStore = db.createObjectStore("media_items", {
-        keyPath: "id",
-      });
-      mediaStore.createIndex("by_projectId", "projectId");
+      if (!db.objectStoreNames.contains("media_items")) {
+        const mediaStore = db.createObjectStore("media_items", {
+          keyPath: "id",
+        });
+        mediaStore.createIndex("by_projectId", "projectId");
+      }
 
-      const promptStore = db.createObjectStore("saved_prompts", {
-        keyPath: "id",
-      });
-      promptStore.createIndex("by_projectId", "projectId");
+      // Add saved_prompts table in version 2
+      if (oldVersion < 2 && !db.objectStoreNames.contains("saved_prompts")) {
+        const promptStore = db.createObjectStore("saved_prompts", {
+          keyPath: "id",
+        });
+        promptStore.createIndex("by_projectId", "projectId");
+      }
     },
   });
 }

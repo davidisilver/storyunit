@@ -216,6 +216,12 @@ export function MediaGallerySheet({
     }
 
     try {
+      console.log("Saving prompt:", {
+        prompt,
+        mediaType: selectedMedia.mediaType,
+        projectId,
+      });
+
       await createPrompt.mutateAsync({
         prompt,
         mediaType: selectedMedia.mediaType,
@@ -228,9 +234,10 @@ export function MediaGallerySheet({
         description: "Your prompt has been saved to the notebook.",
       });
     } catch (error) {
+      console.error("Failed to save prompt:", error);
       toast({
         title: "Failed to save prompt",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again.",
       });
     }
   };
@@ -330,7 +337,11 @@ export function MediaGallerySheet({
               <Button
                 onClick={handleSavePrompt}
                 variant="secondary"
-                disabled={deleteMedia.isPending || createPrompt.isPending || !selectedMedia?.input?.prompt}
+                disabled={
+                  deleteMedia.isPending ||
+                  createPrompt.isPending ||
+                  !selectedMedia?.input?.prompt
+                }
               >
                 {createPrompt.isPending ? (
                   <LoadingIcon />
