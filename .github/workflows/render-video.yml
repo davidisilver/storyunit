@@ -99,7 +99,7 @@ jobs:
             
             // Bundle the video composition
             const bundled = await bundle({
-              entryPoint: path.join(process.cwd(), 'src/components/video-preview.tsx'),
+              entryPoint: path.join(process.cwd(), 'src/remotion-entry.tsx'),
               webpackOverride: (config) => {
                 // Add path aliases to resolve @/ imports
                 config.resolve.alias = {
@@ -113,7 +113,7 @@ jobs:
             
             // Get the composition
             const compositions = await getCompositions(bundled);
-            const compositionToRender = compositions.find((c) => c.id === projectId);
+            const compositionToRender = compositions.find((c) => c.id === 'video-composition');
             
             if (!compositionToRender) {
               throw new Error('Composition not found');

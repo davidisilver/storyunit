@@ -87,7 +87,7 @@ export const VideoComposition: React.FC<VideoCompositionProps> = ({
   );
 };
 
-const MainComposition: React.FC<VideoCompositionProps> = ({
+export const MainComposition: React.FC<VideoCompositionProps> = ({
   tracks,
   frames,
   mediaItems,
