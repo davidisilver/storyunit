@@ -7,17 +7,14 @@ import {
   Img,
 } from "remotion";
 
-// Get composition data from environment variables
-const getCompositionData = () => {
-  if (
-    typeof process !== "undefined" &&
-    process.env.COMPOSITION_DATA &&
-    process.env.COMPOSITION_DATA !== "auto-triggered"
-  ) {
+// Get composition data from input props or fallback to sample data
+const getCompositionData = (inputProps: any = {}) => {
+  // Try to get composition data from input props first
+  if (inputProps.compositionData) {
     try {
-      return JSON.parse(process.env.COMPOSITION_DATA);
+      return inputProps.compositionData;
     } catch (e) {
-      console.log("Could not parse composition data from environment");
+      console.log("Could not parse composition data from input props");
     }
   }
 
@@ -91,17 +88,17 @@ const TextOverlay = ({
 };
 
 // Main composition component with simplified rendering
-const MainComposition = () => {
-  const compositionData = getCompositionData();
-  
+const MainComposition = (props: any) => {
+  const compositionData = getCompositionData(props);
+
   console.log("MainComposition is being executed!");
-  console.log('MainComposition rendering with data:', {
+  console.log("MainComposition rendering with data:", {
     projectId: compositionData.project?.id,
     tracksCount: compositionData.tracks?.length || 0,
     framesCount: Object.keys(compositionData.frames || {}).length,
-    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length
+    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length,
   });
-  
+
   return (
     <AbsoluteFill
       style={{

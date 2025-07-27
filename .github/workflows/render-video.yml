@@ -146,7 +146,9 @@ jobs:
               serveUrl: bundled,
               codec: 'h264',
               outputLocation: outputPath,
-              inputProps: {},
+              inputProps: {
+                compositionData: compositionData,
+              },
             });
             
             console.log('Video rendered successfully:', outputPath);
