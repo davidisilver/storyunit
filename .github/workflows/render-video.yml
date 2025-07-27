@@ -47,16 +47,22 @@ jobs:
             const projectId = process.env.PROJECT_ID;
             let compositionData = null;
             
+            console.log('=== RENDER SCRIPT DEBUG ===');
+            console.log('Project ID:', projectId);
+            console.log('Composition data env var exists:', !!process.env.COMPOSITION_DATA);
+            console.log('Composition data env var value:', process.env.COMPOSITION_DATA);
+            
             // Try to parse composition data if provided
             if (process.env.COMPOSITION_DATA && process.env.COMPOSITION_DATA !== 'auto-triggered') {
               try {
                 compositionData = JSON.parse(process.env.COMPOSITION_DATA);
-                console.log('Successfully parsed composition data');
+                console.log('✅ Successfully parsed composition data');
                 console.log('Project:', compositionData.project?.title);
                 console.log('Tracks:', compositionData.tracks?.length);
                 console.log('Media items:', Object.keys(compositionData.mediaItems || {}).length);
+                console.log('Full composition data:', JSON.stringify(compositionData, null, 2));
               } catch (e) {
-                console.log('Could not parse composition data:', e.message);
+                console.log('❌ Could not parse composition data:', e.message);
                 console.log('Raw composition data:', process.env.COMPOSITION_DATA);
                 console.log('Will use sample data');
               }
@@ -146,6 +152,9 @@ jobs:
             // Render the video
             const outputPath = path.join(process.cwd(), 'rendered-video.mp4');
             
+            console.log('=== RENDERING VIDEO ===');
+            console.log('Composition to render:', compositionToRender.id);
+            console.log('Input props being passed:', JSON.stringify({ compositionData }, null, 2));
             console.log('Rendering video...');
             await renderMedia({
               composition: compositionToRender,
