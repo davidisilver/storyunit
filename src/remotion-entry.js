@@ -35,14 +35,20 @@ const TestComposition = (props) => {
         textAlign: "center",
       },
     },
-    React.createElement("div", {}, 
+    React.createElement(
+      "div",
+      {},
       React.createElement("div", {}, `Frame: ${frame}`),
       React.createElement("div", {}, `Time: ${(frame / fps).toFixed(2)}s`),
-      React.createElement("div", {}, `Props: ${JSON.stringify(props, null, 2)}`),
-      props.compositionData 
+      React.createElement(
+        "div",
+        {},
+        `Props: ${JSON.stringify(props, null, 2)}`,
+      ),
+      props.compositionData
         ? React.createElement("div", {}, "✅ Composition data received!")
-        : React.createElement("div", {}, "❌ No composition data")
-    )
+        : React.createElement("div", {}, "❌ No composition data"),
+    ),
   );
 };
 

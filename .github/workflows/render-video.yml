@@ -34,6 +34,17 @@ jobs:
     - name: Install Remotion CLI
       run: npm install -g @remotion/cli
       
+    - name: Setup system for rendering
+      run: |
+        # Increase memory limits
+        echo "Setting up system for stable rendering..."
+        # Clear any existing Chrome processes
+        pkill -f chrome || true
+        pkill -f chromium || true
+        # Set environment variables for better stability
+        export NODE_OPTIONS="--max-old-space-size=4096"
+        echo "System ready for rendering"
+      
     - name: Create render script
       run: |
         cat > render-video.js << 'EOF'
@@ -164,6 +175,29 @@ jobs:
               inputProps: {
                 compositionData: compositionData,
               },
+              // Add stability configurations to prevent browser crashes
+              browserExecutable: undefined, // Use system Chrome
+              chromiumOptions: {
+                args: [
+                  '--no-sandbox',
+                  '--disable-setuid-sandbox',
+                  '--disable-dev-shm-usage',
+                  '--disable-accelerated-2d-canvas',
+                  '--no-first-run',
+                  '--no-zygote',
+                  '--disable-gpu',
+                  '--single-process',
+                  '--disable-extensions',
+                  '--disable-background-timer-throttling',
+                  '--disable-backgrounding-occluded-windows',
+                  '--disable-renderer-backgrounding',
+                  '--disable-features=TranslateUI',
+                  '--disable-ipc-flooding-protection',
+                  '--memory-pressure-off',
+                  '--max_old_space_size=4096'
+                ]
+              },
+              timeoutInMilliseconds: 300000, // 5 minutes timeout
             });
             
             console.log('Video rendered successfully:', outputPath);
@@ -186,6 +220,7 @@ jobs:
       env:
         PROJECT_ID: ${{ github.event.inputs.project_id || github.event.client_payload.project_id }}
         COMPOSITION_DATA: ${{ github.event.inputs.composition_data || github.event.client_payload.composition_data || 'auto-triggered' }}
+        NODE_OPTIONS: "--max-old-space-size=4096"
       run: node render-video.js
       
     - name: Upload video artifact
