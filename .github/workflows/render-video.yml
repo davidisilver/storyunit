@@ -118,12 +118,14 @@ jobs:
             // Use the test-composition
             const compositionToRender = compositions.find((c) => c.id === 'test-composition');
             
-            if (!compositionToRender) {
-              throw new Error('Composition "test-composition" not found');
-            }
+            console.log('Found composition:', compositionToRender ? compositionToRender.id : 'NOT FOUND');
+            console.log('Composition duration:', compositionToRender ? compositionToRender.durationInFrames : 'N/A');
+            console.log('Composition width:', compositionToRender ? compositionToRender.width : 'N/A');
+            console.log('Composition height:', compositionToRender ? compositionToRender.height : 'N/A');
+            console.log('Composition component:', compositionToRender ? typeof compositionToRender.component : 'N/A');
             
             if (!compositionToRender) {
-              throw new Error('No compositions found');
+              throw new Error('Composition "test-composition" not found');
             }
             
             // Calculate duration based on frames
