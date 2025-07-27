@@ -95,44 +95,15 @@ const TextOverlay = ({
   );
 };
 
-// Main composition component with simplified rendering
-const MainComposition = (props: any) => {
+// Super simple test component
+const MainComposition = () => {
   console.log("MainComposition is being executed!");
-  console.log("MainComposition props:", props);
-  console.log("MainComposition props.compositionData:", props.compositionData);
-  
-  // For now, let's hardcode some test data to see if the component executes
-  const compositionData = {
-    project: {
-      id: "test-project",
-      title: "Test Project",
-      createdAt: Date.now(),
-    },
-    tracks: [
-      { id: "test-track-1", type: "video" },
-      { id: "test-track-2", type: "text" }
-    ],
-    frames: {
-      "test-track-1": [{ id: "test-frame-1", trackId: "test-track-1" }],
-      "test-track-2": [{ id: "test-frame-2", trackId: "test-track-2" }]
-    },
-    mediaItems: {
-      "test-media-1": { id: "test-media-1", type: "video" },
-      "test-media-2": { id: "test-media-2", type: "text" }
-    }
-  };
-  
-  console.log("MainComposition rendering with data:", {
-    projectId: compositionData.project?.id,
-    tracksCount: compositionData.tracks?.length || 0,
-    framesCount: Object.keys(compositionData.frames || {}).length,
-    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length,
-  });
+  console.log("This is a test log from the Remotion component!");
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "green",
+        backgroundColor: "purple",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -142,20 +113,17 @@ const MainComposition = (props: any) => {
       }}
     >
       <div>
-        <div>MAIN COMPOSITION</div>
+        <div>PURPLE TEST</div>
         <div style={{ fontSize: "40px", marginTop: "20px" }}>
-          This should be visible!
-        </div>
-        <div style={{ fontSize: "24px", marginTop: "10px" }}>
-          Tracks: {compositionData.tracks?.length || 0}
-        </div>
-        <div style={{ fontSize: "24px" }}>
-          Media: {Object.keys(compositionData.mediaItems || {}).length}
+          Component is working!
         </div>
       </div>
     </AbsoluteFill>
   );
 };
+
+// Export the component as named export
+export { MainComposition };
 
 // Register the root component
 registerRoot(() => {
