@@ -40,8 +40,14 @@ export function App({ projectId }: AppProps) {
     projectStore,
     (s) => s.setSelectedMediaId,
   );
-  const promptNotebookOpen = useStore(projectStore, (s) => s.promptNotebookOpen);
-  const closePromptNotebook = useStore(projectStore, (s) => s.closePromptNotebook);
+  const promptNotebookOpen = useStore(
+    projectStore,
+    (s) => s.promptNotebookOpen,
+  );
+  const closePromptNotebook = useStore(
+    projectStore,
+    (s) => s.closePromptNotebook,
+  );
   const generateData = useStore(projectStore, (s) => s.generateData);
   const setGenerateData = useStore(projectStore, (s) => s.setGenerateData);
   const generateMediaType = useStore(projectStore, (s) => s.generateMediaType);
