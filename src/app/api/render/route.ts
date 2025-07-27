@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         tracks: compositionData.tracks?.length || 0,
         mediaItems: Object.keys(compositionData.mediaItems || {}).length,
         hasTextTracks:
-          compositionData.tracks?.some((track) => track.type === "text") ||
+          compositionData.tracks?.some((track: any) => track.type === "text") ||
           false,
       },
       nextSteps: [

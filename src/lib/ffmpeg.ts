@@ -8,7 +8,7 @@ export async function getMediaMetadata(media: MediaItem) {
       "fal-ai/ffmpeg-api/metadata",
       {
         input: {
-          media_url: resolveMediaUrl(media),
+          media_url: resolveMediaUrl(media) || "",
           extract_frames: true,
         },
         mode: "streaming",

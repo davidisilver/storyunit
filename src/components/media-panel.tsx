@@ -98,7 +98,7 @@ export function MediaItemRow({
 
           await db.media.update(data.id, {
             ...media,
-            metadata: mediaMetadata?.media || {},
+            metadata: mediaMetadata && 'media' in mediaMetadata ? (mediaMetadata.media as Record<string, any>) : {},
           });
 
           await queryClient.invalidateQueries({
