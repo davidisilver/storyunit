@@ -3,7 +3,13 @@
 import { createFalClient } from "@fal-ai/client";
 
 export const fal = createFalClient({
-  credentials: () => localStorage?.getItem("falKey") as string,
+  credentials: process.env.NEXT_PUBLIC_FAL_KEY || (() => {
+    // Fallback to localStorage if no environment variable
+    if (typeof window !== "undefined") {
+      return localStorage?.getItem("falKey") as string;
+    }
+    return undefined;
+  }),
   proxyUrl: "/api/fal",
 });
 
@@ -60,46 +66,7 @@ export const AVAILABLE_ENDPOINTS: ApiInfo[] = [
     cost: "",
     category: "image",
   },
-  {
-    endpointId: "fal-ai/minimax/video-01-live",
-    label: "Minimax Video 01 Live",
-    description: "High quality video, realistic motion and physics",
-    cost: "",
-    category: "video",
-    inputAsset: ["image"],
-  },
-  {
-    endpointId: "fal-ai/hunyuan-video",
-    label: "Hunyuan",
-    description: "High visual quality, motion diversity and text alignment",
-    cost: "",
-    category: "video",
-  },
-  {
-    endpointId: "fal-ai/kling-video/v1.5/pro",
-    label: "Kling 1.5 Pro",
-    description: "High quality video",
-    cost: "",
-    category: "video",
-    inputAsset: ["image"],
-  },
-  {
-    endpointId: "fal-ai/kling-video/v1/standard/text-to-video",
-    label: "Kling 1.0 Standard",
-    description: "High quality video",
-    cost: "",
-    category: "video",
-    inputAsset: [],
-    cameraControl: true,
-  },
-  {
-    endpointId: "fal-ai/luma-dream-machine",
-    label: "Luma Dream Machine 1.5",
-    description: "High quality video",
-    cost: "",
-    category: "video",
-    inputAsset: ["image"],
-  },
+
   {
     endpointId: "fal-ai/minimax-music",
     label: "Minimax Music",
@@ -187,20 +154,17 @@ export const AVAILABLE_ENDPOINTS: ApiInfo[] = [
     },
   },
   {
-    endpointId: "fal-ai/veo2",
-    label: "Veo 2",
-    description:
-      "Veo creates videos with realistic motion and high quality output, up to 4K.",
+    endpointId: "fal-ai/bytedance/seedance/v1/pro/text-to-video",
+    label: "Seedance 1.0 Pro",
+    description: "High quality video generation model developed by Bytedance",
     cost: "",
     category: "video",
-  },
-  {
-    endpointId: "fal-ai/ltx-video-v095/multiconditioning",
-    label: "LTX Video v0.95 Multiconditioning",
-    description: "Generate videos from prompts,images using LTX Video-0.9.5",
-    cost: "",
-    imageForFrame: true,
-    category: "video",
+    initialInput: {
+      aspect_ratio: "16:9",
+      resolution: "1080p",
+      duration: "5",
+      camera_fixed: false,
+    },
   },
   {
     endpointId: "fal-ai/topaz/upscale/video",

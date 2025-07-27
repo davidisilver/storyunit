@@ -196,6 +196,11 @@ export default function RightPanel({
       movement_value: number;
       movement_type: string;
     };
+    // Seedance-specific parameters
+    resolution?: string;
+    duration?: string;
+    camera_fixed?: boolean;
+    seed?: number;
   };
 
   const aspectRatioMap = {
@@ -222,6 +227,10 @@ export default function RightPanel({
       endpointId === "fal-ai/playht/tts/v3" ? generateData.voice : undefined,
     input:
       endpointId === "fal-ai/playht/tts/v3" ? generateData.prompt : undefined,
+    // Seedance-specific parameters
+    resolution: endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video" ? "1080p" : undefined,
+    duration: endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video" ? String(generateData.duration || 5) : undefined,
+    camera_fixed: endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video" ? false : undefined,
   };
 
   if (generateData.image) {
@@ -635,6 +644,35 @@ export default function RightPanel({
                   })
                 }
               />
+            )}
+            {mediaType === "video" && (
+              <div className="flex flex-row items-center gap-2">
+                <Label>Duration</Label>
+                <Select
+                  value={String(generateData.duration || 5)}
+                  onValueChange={(value) =>
+                    setGenerateData({
+                      duration: Number.parseInt(value),
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3s</SelectItem>
+                    <SelectItem value="4">4s</SelectItem>
+                    <SelectItem value="5">5s</SelectItem>
+                    <SelectItem value="6">6s</SelectItem>
+                    <SelectItem value="7">7s</SelectItem>
+                    <SelectItem value="8">8s</SelectItem>
+                    <SelectItem value="9">9s</SelectItem>
+                    <SelectItem value="10">10s</SelectItem>
+                    <SelectItem value="11">11s</SelectItem>
+                    <SelectItem value="12">12s</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             )}
             {mediaType === "music" && endpointId === "fal-ai/playht/tts/v3" && (
               <div className="flex-1 flex flex-row gap-2">
