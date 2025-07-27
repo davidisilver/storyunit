@@ -18,6 +18,9 @@ const TestComposition = (props) => {
   console.log("Duration:", durationInFrames);
   console.log("All props:", props);
   console.log("Composition data:", props.compositionData);
+  console.log("Composition data type:", typeof props.compositionData);
+  console.log("Composition data truthy check:", !!props.compositionData);
+  console.log("Composition data keys:", props.compositionData ? Object.keys(props.compositionData) : "N/A");
   console.log("==============================");
 
   // Always show something, even if no data
@@ -45,7 +48,17 @@ const TestComposition = (props) => {
         {},
         `Props: ${JSON.stringify(props, null, 2)}`,
       ),
-      props.compositionData
+      React.createElement(
+        "div",
+        {},
+        `Composition data type: ${typeof props.compositionData}`,
+      ),
+      React.createElement(
+        "div",
+        {},
+        `Composition data truthy: ${!!props.compositionData}`,
+      ),
+      props.compositionData && typeof props.compositionData === 'object'
         ? React.createElement("div", {}, "✅ Composition data received!")
         : React.createElement("div", {}, "❌ No composition data"),
     ),
