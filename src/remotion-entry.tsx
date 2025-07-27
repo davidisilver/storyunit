@@ -1,31 +1,51 @@
-import { registerRoot, Composition, AbsoluteFill, Sequence, Video, Img } from "remotion";
+import {
+  registerRoot,
+  Composition,
+  AbsoluteFill,
+  Sequence,
+  Video,
+  Img,
+} from "remotion";
 import { fitText } from "@remotion/layout-utils";
 
 // Get composition data from environment variables
 const getCompositionData = () => {
-  if (typeof process !== 'undefined' && process.env.COMPOSITION_DATA && process.env.COMPOSITION_DATA !== 'auto-triggered') {
+  if (
+    typeof process !== "undefined" &&
+    process.env.COMPOSITION_DATA &&
+    process.env.COMPOSITION_DATA !== "auto-triggered"
+  ) {
     try {
       return JSON.parse(process.env.COMPOSITION_DATA);
     } catch (e) {
-      console.log('Could not parse composition data from environment');
+      console.log("Could not parse composition data from environment");
     }
   }
-  
+
   // Fallback to sample data for testing
   return {
     project: {
-      id: 'test-project',
-      title: 'Test Project',
-      createdAt: Date.now()
+      id: "test-project",
+      title: "Test Project",
+      createdAt: Date.now(),
     },
     tracks: [],
     frames: {},
-    mediaItems: {}
+    mediaItems: {},
   };
 };
 
 // Simplified text overlay component
-const TextOverlay = ({ text, fontSize = 48, fontFamily = "Arial", fontWeight = "bold", color = "white", backgroundColor = "rgba(0, 0, 0, 0.7)", textAlign = "center" as const, position = "bottom" as const }: {
+const TextOverlay = ({
+  text,
+  fontSize = 48,
+  fontFamily = "Arial",
+  fontWeight = "bold",
+  color = "white",
+  backgroundColor = "rgba(0, 0, 0, 0.7)",
+  textAlign = "center" as const,
+  position = "bottom" as const,
+}: {
   text: string;
   fontSize?: number;
   fontFamily?: string;
@@ -81,44 +101,58 @@ const TextOverlay = ({ text, fontSize = 48, fontFamily = "Arial", fontWeight = "
 // Main composition component with simplified rendering
 const MainComposition = () => {
   const compositionData = getCompositionData();
-  
-  console.log('MainComposition rendering with data:', {
+
+  console.log("MainComposition rendering with data:", {
     projectId: compositionData.project?.id,
     tracksCount: compositionData.tracks?.length || 0,
     framesCount: Object.keys(compositionData.frames || {}).length,
-    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length
+    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length,
   });
-  
+
   try {
     const tracks = compositionData.tracks || [];
     const frames = compositionData.frames || {};
     const mediaItems = compositionData.mediaItems || {};
-    
+
     return (
       <AbsoluteFill>
         {tracks.map((track: any) => {
           const trackFrames = frames[track.id] || [];
-          
+
           return trackFrames.map((frame: any) => {
             const duration = frame.duration || 5000;
             const durationInFrames = Math.floor(duration / (1000 / 30)); // 30fps
             const startFrame = Math.floor(frame.timestamp / (1000 / 30));
-            
+
             if (track.type === "video" && frame.data.mediaId) {
               const mediaItem = mediaItems[frame.data.mediaId];
-              if (mediaItem && mediaItem.url) {
-                return (
-                  <Sequence key={frame.id} from={startFrame} durationInFrames={durationInFrames}>
-                    <Video src={mediaItem.url} />
-                  </Sequence>
-                );
+              if (mediaItem) {
+                // Handle nested URL structure
+                const videoUrl = mediaItem.url || mediaItem.output?.video?.url;
+                if (videoUrl) {
+                  console.log('Rendering video:', videoUrl);
+                  return (
+                    <Sequence
+                      key={frame.id}
+                      from={startFrame}
+                      durationInFrames={durationInFrames}
+                    >
+                      <Video src={videoUrl} />
+                    </Sequence>
+                  );
+                }
               }
             }
-            
+
             if (track.type === "text" && frame.data.type === "text") {
               const textData = frame.data;
+              console.log('Rendering text overlay:', textData);
               return (
-                <Sequence key={frame.id} from={startFrame} durationInFrames={durationInFrames}>
+                <Sequence
+                  key={frame.id}
+                  from={startFrame}
+                  durationInFrames={durationInFrames}
+                >
                   <TextOverlay
                     text={textData.text}
                     fontSize={textData.fontSize}
@@ -132,14 +166,14 @@ const MainComposition = () => {
                 </Sequence>
               );
             }
-            
+
             return null;
           });
         })}
       </AbsoluteFill>
     );
   } catch (error) {
-    console.error('Error rendering VideoComposition:', error);
+    console.error("Error rendering VideoComposition:", error);
     return (
       <AbsoluteFill
         style={{
