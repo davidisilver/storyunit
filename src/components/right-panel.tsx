@@ -56,7 +56,6 @@ import { LoadingIcon } from "./ui/icons";
 import { getMediaMetadata } from "@/lib/ffmpeg";
 import CameraMovement from "./camera-control";
 import VideoFrameSelector from "./video-frame-selector";
-import { PromptNotebook } from "./prompt-notebook";
 
 type ModelEndpointPickerProps = {
   mediaType: string;
@@ -726,16 +725,7 @@ export default function RightPanel({
             </div>
           </div>
         )}
-
-        {/* Prompt Notebook Section */}
-        <div className="border-t border-border pt-4">
-          <PromptNotebook
-            currentPrompt={generateData.prompt}
-            mediaType={mediaType}
-            onPromptSelect={(prompt) => setGenerateData({ prompt })}
-          />
-        </div>
-
+        
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent via-background via-60% h-8 pointer-events-none" />
       </div>
     </div>

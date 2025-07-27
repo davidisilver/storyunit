@@ -235,7 +235,8 @@ export function MediaGallerySheet({
       console.error("Failed to save prompt:", error);
       toast({
         title: "Failed to save prompt",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
       });
     }
   };

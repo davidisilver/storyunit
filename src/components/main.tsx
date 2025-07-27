@@ -13,6 +13,7 @@ import { useRef, useState } from "react";
 import { useStore } from "zustand";
 import { ProjectDialog } from "./project-dialog";
 import { MediaGallerySheet } from "./media-gallery";
+import { PromptNotebookPanel } from "./prompt-notebook-panel";
 import { ToastProvider } from "./ui/toast";
 import { Toaster } from "./ui/toaster";
 import { ExportDialog } from "./export-dialog";
@@ -38,6 +39,12 @@ export function App({ projectId }: AppProps) {
     projectStore,
     (s) => s.setSelectedMediaId,
   );
+  const promptNotebookOpen = useStore(projectStore, (s) => s.promptNotebookOpen);
+  const closePromptNotebook = useStore(projectStore, (s) => s.closePromptNotebook);
+  const generateData = useStore(projectStore, (s) => s.generateData);
+  const setGenerateData = useStore(projectStore, (s) => s.setGenerateData);
+  const generateMediaType = useStore(projectStore, (s) => s.generateMediaType);
+
   const handleOnSheetOpenChange = (open: boolean) => {
     if (!open) {
       setSelectedMediaId(null);
@@ -62,6 +69,13 @@ export function App({ projectId }: AppProps) {
               </div>
             </main>
             <RightPanel />
+            <PromptNotebookPanel
+              isOpen={promptNotebookOpen}
+              onOpenChange={closePromptNotebook}
+              currentPrompt={generateData.prompt}
+              mediaType={generateMediaType}
+              onPromptSelect={(prompt) => setGenerateData({ prompt })}
+            />
           </div>
           <Toaster />
           <ProjectDialog open={projectDialogOpen} />

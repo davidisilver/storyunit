@@ -215,10 +215,7 @@ export function PromptNotebook({
                     rows={3}
                   />
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => setEditingId(null)}
-                    >
+                    <Button size="sm" onClick={() => setEditingId(null)}>
                       <CheckIcon className="w-4 h-4 mr-2" />
                       Done
                     </Button>
@@ -236,9 +233,7 @@ export function PromptNotebook({
                 <>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm line-clamp-3">
-                        {prompt.prompt}
-                      </p>
+                      <p className="text-sm line-clamp-3">{prompt.prompt}</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {formatDistanceToNow(prompt.createdAt, {
                           addSuffix: true,

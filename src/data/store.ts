@@ -20,20 +20,44 @@ export type GenerateData = {
   [key: string]: any;
 };
 
-interface VideoProjectProps {
+export type VideoProjectProps = {
   projectId: string;
   projectDialogOpen: boolean;
+  generateDialogOpen: boolean;
+  promptNotebookOpen: boolean;
+  exportDialogOpen: boolean;
+  selectedMediaId: string | null;
+  selectedKeyframes: string[];
   player: PlayerRef | null;
   playerCurrentTimestamp: number;
   playerState: "playing" | "paused";
-  generateDialogOpen: boolean;
-  generateMediaType: MediaType;
-  selectedMediaId: string | null;
-  selectedKeyframes: string[];
   generateData: GenerateData;
-  exportDialogOpen: boolean;
+  generateMediaType: MediaType;
   endpointId: string;
-}
+};
+
+export const DEFAULT_PROPS: VideoProjectProps = {
+  projectId: "",
+  projectDialogOpen: false,
+  generateDialogOpen: false,
+  promptNotebookOpen: false,
+  exportDialogOpen: false,
+  selectedMediaId: null,
+  selectedKeyframes: [],
+  player: null,
+  playerCurrentTimestamp: 0,
+  playerState: "paused",
+  generateData: {
+    prompt: "",
+    duration: 30,
+    image: null,
+    video_url: null,
+    audio_url: null,
+    voice: "",
+  },
+  generateMediaType: "image",
+  endpointId: "fal-ai/fast-sdxl",
+};
 
 interface VideoProjectState extends VideoProjectProps {
   setProjectId: (projectId: string) => void;
@@ -45,6 +69,8 @@ interface VideoProjectState extends VideoProjectProps {
   setGenerateMediaType: (mediaType: MediaType) => void;
   openGenerateDialog: (mediaType?: MediaType) => void;
   closeGenerateDialog: () => void;
+  openPromptNotebook: () => void;
+  closePromptNotebook: () => void;
   setSelectedMediaId: (mediaId: string | null) => void;
   selectKeyframe: (frameId: string) => void;
   setGenerateData: (generateData: Partial<GenerateData>) => void;
@@ -52,28 +78,6 @@ interface VideoProjectState extends VideoProjectProps {
   setEndpointId: (endpointId: string) => void;
   onGenerate: () => void;
 }
-
-const DEFAULT_PROPS: VideoProjectProps = {
-  projectId: "",
-  endpointId: AVAILABLE_ENDPOINTS[0].endpointId,
-  projectDialogOpen: false,
-  player: null,
-  playerCurrentTimestamp: 0,
-  playerState: "paused",
-  generateDialogOpen: false,
-  generateMediaType: "image",
-  selectedMediaId: null,
-  selectedKeyframes: [],
-  generateData: {
-    prompt: "",
-    image: null,
-    duration: 30,
-    voice: "",
-    video_url: null,
-    audio_url: null,
-  },
-  exportDialogOpen: false,
-};
 
 type VideoProjectStore = ReturnType<typeof createVideoProjectStore>;
 
@@ -118,6 +122,8 @@ export const createVideoProjectStore = (
         generateMediaType: mediaType ?? state().generateMediaType,
       }),
     closeGenerateDialog: () => set({ generateDialogOpen: false }),
+    openPromptNotebook: () => set({ promptNotebookOpen: true }),
+    closePromptNotebook: () => set({ promptNotebookOpen: false }),
     setSelectedMediaId: (selectedMediaId: string | null) =>
       set({ selectedMediaId }),
     selectKeyframe: (frameId: string) => {
