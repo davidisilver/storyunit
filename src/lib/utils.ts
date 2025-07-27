@@ -1,7 +1,13 @@
 import type { MediaItem, VideoTrack } from "@/data/schema";
 import { GenerateData, LAST_PROJECT_ID_KEY } from "@/data/store";
 import { type ClassValue, clsx } from "clsx";
-import { ImageIcon, MicIcon, MusicIcon, VideoIcon, TypeIcon } from "lucide-react";
+import {
+  ImageIcon,
+  MicIcon,
+  MusicIcon,
+  VideoIcon,
+  TypeIcon,
+} from "lucide-react";
 import type { FunctionComponent } from "react";
 import { twMerge } from "tailwind-merge";
 import type { InputAsset } from "./fal";

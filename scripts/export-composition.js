@@ -21,7 +21,9 @@ function showExportInstructions(projectId) {
   console.log(`1. Open browser console on your project page`);
   console.log(`2. Run this command:`);
   console.log(`   copy(JSON.stringify(window.__STORYUNIT_DATA__, null, 2))`);
-  console.log(`3. Paste the data into a file named: composition-${projectId}.json\n`);
+  console.log(
+    `3. Paste the data into a file named: composition-${projectId}.json\n`,
+  );
 
   console.log(`🚀 GitHub Actions Steps:`);
   console.log(`1. Go to: https://github.com/davidisilver/storyunit/actions`);
@@ -44,7 +46,7 @@ function showExportInstructions(projectId) {
         id: "track-1",
         type: "video",
         // ... track data
-      }
+      },
     ],
     frames: {
       "track-1": [
@@ -53,9 +55,9 @@ function showExportInstructions(projectId) {
           trackId: "track-1",
           timestamp: 0,
           duration: 5000,
-          data: { mediaId: "media-1" }
-        }
-      ]
+          data: { mediaId: "media-1" },
+        },
+      ],
     },
     mediaItems: {
       "media-1": {
@@ -63,12 +65,14 @@ function showExportInstructions(projectId) {
         mediaType: "video",
         url: "https://...",
         // ... media data
-      }
-    }
+      },
+    },
   };
 
   console.log(JSON.stringify(sampleStructure, null, 2));
-  console.log(`\n💡 Tip: Make sure to include all text tracks for text overlay rendering!`);
+  console.log(
+    `\n💡 Tip: Make sure to include all text tracks for text overlay rendering!`,
+  );
 }
 
 // Get project ID from command line arguments

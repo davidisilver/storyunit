@@ -112,25 +112,27 @@ export default function BottomBar() {
 
       const newId = await db.keyFrames.create({
         trackId: track.id,
-        data: media.mediaType === "text" 
-          ? {
-              mediaId: media.id,
-              type: "text",
-              text: media.input?.text || "Sample Text",
-              fontSize: media.input?.fontSize || 48,
-              fontFamily: media.input?.fontFamily || "Arial",
-              fontWeight: media.input?.fontWeight || "bold",
-              color: media.input?.color || "white",
-              backgroundColor: media.input?.backgroundColor || "rgba(0, 0, 0, 0.7)",
-              textAlign: media.input?.textAlign || "center",
-              position: media.input?.position || "bottom",
-            }
-          : {
-              mediaId: media.id,
-              type: media.input?.image_url ? "image" : "prompt",
-              prompt: media.input?.prompt || "",
-              url: media.input?.image_url?.url,
-            },
+        data:
+          media.mediaType === "text"
+            ? {
+                mediaId: media.id,
+                type: "text",
+                text: media.input?.text || "Sample Text",
+                fontSize: media.input?.fontSize || 48,
+                fontFamily: media.input?.fontFamily || "Arial",
+                fontWeight: media.input?.fontWeight || "bold",
+                color: media.input?.color || "white",
+                backgroundColor:
+                  media.input?.backgroundColor || "rgba(0, 0, 0, 0.7)",
+                textAlign: media.input?.textAlign || "center",
+                position: media.input?.position || "bottom",
+              }
+            : {
+                mediaId: media.id,
+                type: media.input?.image_url ? "image" : "prompt",
+                prompt: media.input?.prompt || "",
+                url: media.input?.image_url?.url,
+              },
         timestamp: lastKeyframe
           ? lastKeyframe.timestamp + 1 + lastKeyframe.duration
           : 0,

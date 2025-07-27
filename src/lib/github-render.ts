@@ -7,7 +7,9 @@ export interface CompositionData {
   mediaItems: Record<string, any>;
 }
 
-export async function exportCompositionData(projectId: string): Promise<CompositionData | null> {
+export async function exportCompositionData(
+  projectId: string,
+): Promise<CompositionData | null> {
   try {
     // Get project data
     const project = await db.projects.find(projectId);
@@ -18,9 +20,11 @@ export async function exportCompositionData(projectId: string): Promise<Composit
 
     // Get composition data
     const tracks = await db.tracks.tracksByProject(projectId);
-    const frames = (await Promise.all(
-      tracks.map((track) => db.keyFrames.keyFramesByTrack(track.id))
-    )).flatMap((f) => f);
+    const frames = (
+      await Promise.all(
+        tracks.map((track) => db.keyFrames.keyFramesByTrack(track.id)),
+      )
+    ).flatMap((f) => f);
     const mediaItems = await db.media.mediaByProject(projectId);
 
     const composition = {
@@ -30,11 +34,9 @@ export async function exportCompositionData(projectId: string): Promise<Composit
         tracks.map((track) => [
           track.id,
           frames.filter((f) => f.trackId === track.id),
-        ])
+        ]),
       ),
-      mediaItems: Object.fromEntries(
-        mediaItems.map((item) => [item.id, item])
-      ),
+      mediaItems: Object.fromEntries(mediaItems.map((item) => [item.id, item])),
     };
 
     return composition;
@@ -44,7 +46,10 @@ export async function exportCompositionData(projectId: string): Promise<Composit
   }
 }
 
-export async function triggerGitHubActionsRender(projectId: string, compositionData: CompositionData): Promise<boolean> {
+export async function triggerGitHubActionsRender(
+  projectId: string,
+  compositionData: CompositionData,
+): Promise<boolean> {
   try {
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
@@ -52,34 +57,39 @@ export async function triggerGitHubActionsRender(projectId: string, compositionD
       return false;
     }
 
-    const repoOwner = process.env.GITHUB_REPOSITORY?.split('/')[0] || 'your-username';
-    const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'storyunit-main';
+    const repoOwner =
+      process.env.GITHUB_REPOSITORY?.split("/")[0] || "your-username";
+    const repoName =
+      process.env.GITHUB_REPOSITORY?.split("/")[1] || "storyunit-main";
 
-    const response = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/dispatches`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${githubToken}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        event_type: 'render-video',
-        client_payload: {
-          project_id: projectId,
-          composition_data: JSON.stringify(compositionData),
+    const response = await fetch(
+      `https://api.github.com/repos/${repoOwner}/${repoName}/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `token ${githubToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({
+          event_type: "render-video",
+          client_payload: {
+            project_id: projectId,
+            composition_data: JSON.stringify(compositionData),
+          },
+        }),
+      },
+    );
 
     if (!response.ok) {
-      console.error('Failed to trigger GitHub Actions:', response.statusText);
+      console.error("Failed to trigger GitHub Actions:", response.statusText);
       return false;
     }
 
-    console.log('GitHub Actions workflow triggered successfully');
+    console.log("GitHub Actions workflow triggered successfully");
     return true;
   } catch (error) {
-    console.error('Error triggering GitHub Actions:', error);
+    console.error("Error triggering GitHub Actions:", error);
     return false;
   }
-} 
+}

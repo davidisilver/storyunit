@@ -57,13 +57,13 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
       }
 
       const result = await response.json();
-      
+
       // Show a toast if text tracks were excluded
       if (result.hasTextTracks) {
         // You can add a toast notification here if needed
         console.log("Note: Text tracks were excluded from export");
       }
-      
+
       // Return in the same format as the old FFmpeg API
       return {
         video_url: result.videoUrl,
@@ -127,9 +127,13 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
           <DialogDescription />
         </DialogHeader>
         <div className="text-muted-foreground">
-          <p>GitHub Actions rendering is set up for videos with text overlays!</p>
+          <p>
+            GitHub Actions rendering is set up for videos with text overlays!
+          </p>
           <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-            <h4 className="font-semibold mb-2">How to render with text overlays:</h4>
+            <h4 className="font-semibold mb-2">
+              How to render with text overlays:
+            </h4>
             <ol className="list-decimal list-inside space-y-1 text-sm">
               <li>Go to the Actions tab in this repository</li>
               <li>Click "Render Video" workflow</li>

@@ -108,9 +108,12 @@ export default function LeftPanel() {
         await db.media
           .update(media.id, {
             ...media,
-            metadata: mediaMetadata && typeof mediaMetadata === 'object' && 'media' in mediaMetadata 
-              ? mediaMetadata.media || {} 
-              : {},
+            metadata:
+              mediaMetadata &&
+              typeof mediaMetadata === "object" &&
+              "media" in mediaMetadata
+                ? mediaMetadata.media || {}
+                : {},
           })
           .finally(() => {
             queryClient.invalidateQueries({

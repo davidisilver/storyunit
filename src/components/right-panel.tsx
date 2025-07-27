@@ -161,10 +161,10 @@ export default function RightPanel({
   );
   const handleMediaTypeChange = (mediaType: string) => {
     setMediaType(mediaType as MediaType);
-    
+
     // For text, we don't need an endpoint - it's user input
     if (mediaType === "text") {
-      setGenerateData({ 
+      setGenerateData({
         text: "Sample Text",
         fontSize: 48,
         fontFamily: "Arial",
@@ -172,11 +172,11 @@ export default function RightPanel({
         color: "white",
         backgroundColor: "rgba(0, 0, 0, 0.7)",
         textAlign: "center",
-        position: "bottom"
+        position: "bottom",
       });
       return;
     }
-    
+
     const endpoint = AVAILABLE_ENDPOINTS.find(
       (endpoint) => endpoint.category === mediaType,
     );
@@ -456,9 +456,12 @@ export default function RightPanel({
         await db.media
           .update(media.id, {
             ...media,
-            metadata: mediaMetadata && typeof mediaMetadata === 'object' && 'media' in mediaMetadata 
-              ? mediaMetadata.media || {} 
-              : {},
+            metadata:
+              mediaMetadata &&
+              typeof mediaMetadata === "object" &&
+              "media" in mediaMetadata
+                ? mediaMetadata.media || {}
+                : {},
           })
           .finally(() => {
             queryClient.invalidateQueries({
@@ -692,13 +695,11 @@ export default function RightPanel({
                     id="text-content"
                     placeholder="Enter your text here..."
                     value={generateData.text || ""}
-                    onChange={(e) =>
-                      setGenerateData({ text: e.target.value })
-                    }
+                    onChange={(e) => setGenerateData({ text: e.target.value })}
                     className="min-h-[100px]"
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="font-size">Font Size</Label>
@@ -707,11 +708,13 @@ export default function RightPanel({
                       type="number"
                       value={generateData.fontSize || 48}
                       onChange={(e) =>
-                        setGenerateData({ fontSize: parseInt(e.target.value) || 48 })
+                        setGenerateData({
+                          fontSize: parseInt(e.target.value) || 48,
+                        })
                       }
                     />
                   </div>
-                  
+
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="font-family">Font Family</Label>
                     <Select
@@ -726,14 +729,16 @@ export default function RightPanel({
                       <SelectContent>
                         <SelectItem value="Arial">Arial</SelectItem>
                         <SelectItem value="Helvetica">Helvetica</SelectItem>
-                        <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                        <SelectItem value="Times New Roman">
+                          Times New Roman
+                        </SelectItem>
                         <SelectItem value="Georgia">Georgia</SelectItem>
                         <SelectItem value="Verdana">Verdana</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="text-color">Text Color</Label>
@@ -746,7 +751,7 @@ export default function RightPanel({
                       }
                     />
                   </div>
-                  
+
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="bg-color">Background Color</Label>
                     <Input
@@ -759,7 +764,7 @@ export default function RightPanel({
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="text-align">Text Alignment</Label>
@@ -779,7 +784,7 @@ export default function RightPanel({
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="position">Position</Label>
                     <Select
