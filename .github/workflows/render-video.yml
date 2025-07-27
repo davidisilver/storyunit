@@ -66,8 +66,19 @@ jobs:
             // Try to parse composition data if provided
             if (process.env.COMPOSITION_DATA && process.env.COMPOSITION_DATA !== 'auto-triggered') {
               try {
-                compositionData = JSON.parse(process.env.COMPOSITION_DATA);
-                console.log('✅ Successfully parsed composition data');
+                const parsedData = JSON.parse(process.env.COMPOSITION_DATA);
+                
+                // Check if the data is nested (has inputs.composition_data)
+                if (parsedData.inputs && parsedData.inputs.composition_data) {
+                  // Parse the nested composition_data string
+                  compositionData = JSON.parse(parsedData.inputs.composition_data);
+                  console.log('✅ Successfully parsed nested composition data');
+                } else {
+                  // Direct composition data
+                  compositionData = parsedData;
+                  console.log('✅ Successfully parsed direct composition data');
+                }
+                
                 console.log('Project:', compositionData.project?.title);
                 console.log('Tracks:', compositionData.tracks?.length);
                 console.log('Media items:', Object.keys(compositionData.mediaItems || {}).length);
