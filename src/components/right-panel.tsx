@@ -725,7 +725,7 @@ export default function RightPanel({
             </div>
           </div>
         )}
-        
+
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent via-background via-60% h-8 pointer-events-none" />
       </div>
     </div>

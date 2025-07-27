@@ -39,8 +39,14 @@ export function App({ projectId }: AppProps) {
     projectStore,
     (s) => s.setSelectedMediaId,
   );
-  const promptNotebookOpen = useStore(projectStore, (s) => s.promptNotebookOpen);
-  const closePromptNotebook = useStore(projectStore, (s) => s.closePromptNotebook);
+  const promptNotebookOpen = useStore(
+    projectStore,
+    (s) => s.promptNotebookOpen,
+  );
+  const closePromptNotebook = useStore(
+    projectStore,
+    (s) => s.closePromptNotebook,
+  );
   const generateData = useStore(projectStore, (s) => s.generateData);
   const setGenerateData = useStore(projectStore, (s) => s.setGenerateData);
   const generateMediaType = useStore(projectStore, (s) => s.generateMediaType);
@@ -60,7 +66,7 @@ export function App({ projectId }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <VideoProjectStoreContext.Provider value={projectStore}>
           <div className="flex flex-col relative overflow-x-hidden h-screen bg-background">
-            <Header openKeyDialog={() => setKeyDialog(true)} />
+            <Header />
             <main className="flex overflow-hidden h-full w-screen">
               <LeftPanel />
               <div className="flex flex-col flex-1">

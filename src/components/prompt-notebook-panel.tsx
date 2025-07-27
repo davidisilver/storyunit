@@ -85,7 +85,10 @@ export function PromptNotebookPanel({
     }
   };
 
-  const handleUpdatePrompt = async (id: string, updates: Partial<SavedPrompt>) => {
+  const handleUpdatePrompt = async (
+    id: string,
+    updates: Partial<SavedPrompt>,
+  ) => {
     try {
       await updatePrompt.mutateAsync({ id, prompt: updates });
       setEditingId(null);
@@ -117,14 +120,14 @@ export function PromptNotebookPanel({
   };
 
   const filteredPrompts = savedPrompts.filter(
-    (prompt) => prompt.mediaType === mediaType
+    (prompt) => prompt.mediaType === mediaType,
   );
 
   return (
     <div
       className={cn(
         "fixed bottom-0 right-0 w-[450px] h-[600px] bg-background border-l border-t border-border z-50 transition-transform duration-300 ease-in-out",
-        isOpen ? "translate-y-0" : "translate-y-full"
+        isOpen ? "translate-y-0" : "translate-y-full",
       )}
     >
       <div className="flex flex-col h-full">
@@ -226,15 +229,14 @@ export function PromptNotebookPanel({
                       placeholder="Prompt..."
                       value={prompt.prompt}
                       onChange={(e) =>
-                        handleUpdatePrompt(prompt.id, { prompt: e.target.value })
+                        handleUpdatePrompt(prompt.id, {
+                          prompt: e.target.value,
+                        })
                       }
                       rows={3}
                     />
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => setEditingId(null)}
-                      >
+                      <Button size="sm" onClick={() => setEditingId(null)}>
                         <CheckIcon className="w-4 h-4 mr-2" />
                         Done
                       </Button>
@@ -252,9 +254,7 @@ export function PromptNotebookPanel({
                   <>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm line-clamp-3">
-                          {prompt.prompt}
-                        </p>
+                        <p className="text-sm line-clamp-3">{prompt.prompt}</p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {formatDistanceToNow(prompt.createdAt, {
                             addSuffix: true,
@@ -297,4 +297,4 @@ export function PromptNotebookPanel({
       </div>
     </div>
   );
-} 
+}
