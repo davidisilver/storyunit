@@ -8,16 +8,19 @@ const {
 } = require("remotion");
 
 // Main video composition component
-const MainComposition = ({ compositionData }) => {
+const MainComposition = (props) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
   console.log("MainComposition is being executed!");
-  console.log("Composition data type:", typeof compositionData);
-  console.log("Composition data:", compositionData);
+  console.log("All props:", props);
+  console.log("Composition data type:", typeof props.compositionData);
+  console.log("Composition data:", props.compositionData);
   console.log("Current frame:", frame);
   console.log("FPS:", fps);
   console.log("Duration in frames:", durationInFrames);
+
+  const { compositionData } = props;
 
   // If no composition data, show a placeholder
   if (!compositionData) {
@@ -44,7 +47,10 @@ const MainComposition = ({ compositionData }) => {
   console.log("- project:", compositionData.project);
   console.log("- tracks:", compositionData.tracks);
   console.log("- frames keys:", Object.keys(compositionData.frames || {}));
-  console.log("- mediaItems keys:", Object.keys(compositionData.mediaItems || {}));
+  console.log(
+    "- mediaItems keys:",
+    Object.keys(compositionData.mediaItems || {}),
+  );
 
   // Calculate current time in milliseconds
   const currentTimeMs = (frame / fps) * 1000;
@@ -59,10 +65,14 @@ const MainComposition = ({ compositionData }) => {
       const frameStart = frameData.timestamp;
       const frameEnd = frameData.timestamp + frameData.duration;
 
-      console.log(`Checking frame ${frameData.id}: ${frameStart}ms - ${frameEnd}ms`);
+      console.log(
+        `Checking frame ${frameData.id}: ${frameStart}ms - ${frameEnd}ms`,
+      );
 
       if (currentTimeMs >= frameStart && currentTimeMs < frameEnd) {
-        console.log(`Frame ${frameData.id} is active at time ${currentTimeMs}ms`);
+        console.log(
+          `Frame ${frameData.id} is active at time ${currentTimeMs}ms`,
+        );
         activeFrames.push({
           trackId,
           frameData,
@@ -99,7 +109,7 @@ const MainComposition = ({ compositionData }) => {
     // Render active frames
     ...activeFrames.map(({ frameData, mediaItem }, index) => {
       console.log(`Rendering frame ${frameData.id}, mediaItem:`, mediaItem);
-      
+
       if (mediaItem?.mediaType === "video" && mediaItem?.output?.video?.url) {
         console.log(`Rendering video: ${mediaItem.output.video.url}`);
         // Render video
@@ -146,7 +156,10 @@ const MainComposition = ({ compositionData }) => {
           mediaItem.input.text,
         );
       } else {
-        console.log(`No valid media item found for frame ${frameData.id}:`, mediaItem);
+        console.log(
+          `No valid media item found for frame ${frameData.id}:`,
+          mediaItem,
+        );
       }
 
       return null;
@@ -193,5 +206,8 @@ registerRoot(() => {
     fps: 30,
     width: 1920,
     height: 1080,
+    defaultProps: {
+      compositionData: null,
+    },
   });
 });
