@@ -10,10 +10,13 @@ import {
 // Get composition data from input props or fallback to sample data
 const getCompositionData = (inputProps: any = {}) => {
   console.log("getCompositionData called with inputProps:", inputProps);
-  
+
   // Try to get composition data from input props first
   if (inputProps.compositionData) {
-    console.log("Found compositionData in inputProps:", inputProps.compositionData);
+    console.log(
+      "Found compositionData in inputProps:",
+      inputProps.compositionData,
+    );
     try {
       return inputProps.compositionData;
     } catch (e) {
@@ -98,7 +101,26 @@ const MainComposition = (props: any) => {
   console.log("MainComposition props:", props);
   console.log("MainComposition props.compositionData:", props.compositionData);
   
-  const compositionData = getCompositionData(props);
+  // For now, let's hardcode some test data to see if the component executes
+  const compositionData = {
+    project: {
+      id: "test-project",
+      title: "Test Project",
+      createdAt: Date.now(),
+    },
+    tracks: [
+      { id: "test-track-1", type: "video" },
+      { id: "test-track-2", type: "text" }
+    ],
+    frames: {
+      "test-track-1": [{ id: "test-frame-1", trackId: "test-track-1" }],
+      "test-track-2": [{ id: "test-frame-2", trackId: "test-track-2" }]
+    },
+    mediaItems: {
+      "test-media-1": { id: "test-media-1", type: "video" },
+      "test-media-2": { id: "test-media-2", type: "text" }
+    }
+  };
   
   console.log("MainComposition rendering with data:", {
     projectId: compositionData.project?.id,
