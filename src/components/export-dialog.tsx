@@ -42,7 +42,7 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
   const router = useRouter();
   const exportVideo = useMutation({
     mutationFn: async () => {
-      // Use Remotion rendering to include text overlays
+      // Trigger GitHub Actions workflow for rendering
       const response = await fetch("/api/render", {
         method: "POST",
         headers: {
@@ -53,22 +53,11 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to render video");
+        throw new Error(errorData.error || "Failed to trigger GitHub Actions workflow");
       }
 
       const result = await response.json();
-
-      // Show a toast if text tracks were excluded
-      if (result.hasTextTracks) {
-        // You can add a toast notification here if needed
-        console.log("Note: Text tracks were excluded from export");
-      }
-
-      // Return in the same format as the old FFmpeg API
-      return {
-        video_url: result.videoUrl,
-        thumbnail_url: result.thumbnailUrl,
-      } as ShareResult;
+      return result;
     },
   });
   const setExportDialogOpen = useVideoProjectStore(
@@ -127,20 +116,73 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
           <DialogDescription />
         </DialogHeader>
         <div className="text-muted-foreground">
-          <p>
-            GitHub Actions rendering is set up for videos with text overlays!
-          </p>
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-            <h4 className="font-semibold mb-2">
-              How to render with text overlays:
-            </h4>
-            <ol className="list-decimal list-inside space-y-1 text-sm">
-              <li>Go to the Actions tab in this repository</li>
-              <li>Click "Render Video" workflow</li>
-              <li>Enter your project ID and composition data</li>
-              <li>Download the rendered video from artifacts</li>
-            </ol>
-          </div>
+          {exportVideo.isPending ? (
+            <div className="space-y-4">
+              <p className="font-semibold text-green-600 dark:text-green-400">
+                🚀 Triggering GitHub Actions workflow...
+              </p>
+              <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                <p className="text-sm">
+                  Your video is being queued for rendering with text overlays!
+                </p>
+              </div>
+            </div>
+          ) : exportVideo.data ? (
+            <div className="space-y-4">
+              <p className="font-semibold text-green-600 dark:text-green-400">
+                ✅ GitHub Actions workflow triggered successfully!
+              </p>
+              {exportVideo.data.projectInfo && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <h4 className="font-semibold mb-2">Project Details:</h4>
+                  <ul className="text-sm space-y-1">
+                    <li>📁 Project: {exportVideo.data.projectInfo.title}</li>
+                    <li>🎬 Tracks: {exportVideo.data.projectInfo.tracks}</li>
+                    <li>📁 Media Items: {exportVideo.data.projectInfo.mediaItems}</li>
+                    {exportVideo.data.projectInfo.hasTextTracks && (
+                      <li className="text-orange-600 dark:text-orange-400">
+                        ✨ Includes text overlays!
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <h4 className="font-semibold mb-2">Next Steps:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm">
+                  <li>Go to the Actions tab in your repository</li>
+                  <li>Find the "Render Video" workflow run</li>
+                  <li>Wait for it to complete (usually 2-5 minutes)</li>
+                  <li>Download the video from artifacts</li>
+                </ol>
+                {exportVideo.data.actionsUrl && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-3"
+                    onClick={() => window.open(exportVideo.data.actionsUrl, '_blank')}
+                  >
+                    Open Actions Tab
+                  </Button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p>
+                Click "Export" to trigger GitHub Actions rendering with text overlays!
+              </p>
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <h4 className="font-semibold mb-2">What happens:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Your project data will be automatically exported</li>
+                  <li>GitHub Actions will render the complete video</li>
+                  <li>Text overlays will be included in the final video</li>
+                  <li>You'll get a high-quality 1080p H.264 video</li>
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
         <div
           className={cn(
@@ -148,71 +190,58 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
             project?.aspectRatio === "16:9" ? "aspect-[16/9]" : "aspect-[9/16]",
           )}
         >
-          {exportVideo.isPending || exportVideo.data === undefined ? (
-            <div
-              className={cn(
-                "bg-accent/30 flex flex-col items-center justify-center w-full h-full",
-              )}
-            >
-              {exportVideo.isPending ? (
-                <LoadingIcon className="w-24 h-24" />
-              ) : (
-                <FilmIcon className="w-24 h-24 opacity-50" />
-              )}
-            </div>
-          ) : (
-            <video
-              src={exportVideo.data.video_url}
-              controls
-              className="w-full h-full"
-            />
-          )}
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-row gap-2 items-center">
-            <Input
-              value={exportVideo.data?.video_url ?? ""}
-              placeholder="Video URL..."
-              readOnly
-              className="text-muted-foreground"
-            />
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() =>
-                navigator.clipboard.writeText(exportVideo.data?.video_url ?? "")
-              }
-              disabled={exportVideo.data === undefined}
-            >
-              <CopyIcon className="w-5 h-5" />
-            </Button>
+          <div
+            className={cn(
+              "bg-accent/30 flex flex-col items-center justify-center w-full h-full rounded-lg",
+            )}
+          >
+            {exportVideo.isPending ? (
+              <div className="text-center space-y-4">
+                <LoadingIcon className="w-16 h-16 mx-auto" />
+                <p className="text-sm text-muted-foreground">
+                  Triggering GitHub Actions workflow...
+                </p>
+              </div>
+            ) : exportVideo.data ? (
+              <div className="text-center space-y-4 p-6">
+                <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                  <FilmIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="font-semibold text-green-600 dark:text-green-400">
+                    Workflow Triggered!
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Video will be available in GitHub Actions
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center space-y-4 p-6">
+                <FilmIcon className="w-16 h-16 mx-auto opacity-50" />
+                <p className="text-sm text-muted-foreground">
+                  Click Export to start rendering
+                </p>
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>
-          <Button
-            onClick={handleOnShare}
-            variant="secondary"
-            disabled={actionsDisabled || !exportVideo.data}
-          >
-            <ShareIcon className="w-4 h-4 opacity-50" />
-            Share
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={actionsDisabled || !exportVideo.data}
-            aria-disabled={actionsDisabled || !exportVideo.data}
-            asChild
-          >
-            <a href={exportVideo.data?.video_url ?? "#"} download>
-              <DownloadIcon className="w-4 h-4" />
-              Download
-            </a>
-          </Button>
+          {exportVideo.data?.actionsUrl && (
+            <Button
+              variant="secondary"
+              onClick={() => window.open(exportVideo.data.actionsUrl, '_blank')}
+              disabled={actionsDisabled}
+            >
+              <ShareIcon className="w-4 h-4 opacity-50" />
+              View in Actions
+            </Button>
+          )}
           <Button
             onClick={() => exportVideo.mutate()}
             disabled={actionsDisabled}
           >
-            Export
+            {exportVideo.isPending ? "Triggering..." : "Export with GitHub Actions"}
           </Button>
         </DialogFooter>
       </DialogContent>

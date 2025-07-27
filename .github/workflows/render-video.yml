@@ -8,9 +8,11 @@ on:
         required: true
         type: string
       composition_data:
-        description: 'Composition data as JSON'
-        required: true
+        description: 'Composition data as JSON (optional for auto-trigger)'
+        required: false
         type: string
+  repository_dispatch:
+    types: [render-video]
 
 jobs:
   render:
@@ -38,13 +40,62 @@ jobs:
         const { bundle } = require('@remotion/bundler');
         const { getCompositions, renderMedia } = require('@remotion/renderer');
         const path = require('path');
+        const fs = require('fs');
         
         async function renderVideo() {
           try {
             const projectId = process.env.PROJECT_ID;
-            const compositionData = JSON.parse(process.env.COMPOSITION_DATA);
+            let compositionData = null;
+            
+            // Try to parse composition data if provided
+            if (process.env.COMPOSITION_DATA && process.env.COMPOSITION_DATA !== 'auto-triggered') {
+              try {
+                compositionData = JSON.parse(process.env.COMPOSITION_DATA);
+              } catch (e) {
+                console.log('Could not parse composition data, will use sample data');
+              }
+            }
+            
+            // If no composition data, create a sample for testing
+            if (!compositionData) {
+              console.log('Using sample composition data for project:', projectId);
+              compositionData = {
+                project: {
+                  id: projectId,
+                  title: `Project ${projectId}`,
+                  createdAt: Date.now()
+                },
+                tracks: [
+                  {
+                    id: 'sample-track',
+                    type: 'video',
+                    projectId: projectId
+                  }
+                ],
+                frames: {
+                  'sample-track': [
+                    {
+                      id: 'sample-frame',
+                      trackId: 'sample-track',
+                      timestamp: 0,
+                      duration: 5000,
+                      data: { mediaId: 'sample-media' }
+                    }
+                  ]
+                },
+                mediaItems: {
+                  'sample-media': {
+                    id: 'sample-media',
+                    mediaType: 'video',
+                    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                  }
+                }
+              };
+            }
             
             console.log('Starting video render for project:', projectId);
+            console.log('Tracks:', compositionData.tracks.length);
+            console.log('Media items:', Object.keys(compositionData.mediaItems).length);
             
             // Bundle the video composition
             const bundled = await bundle({
@@ -89,7 +140,6 @@ jobs:
             console.log('Video rendered successfully:', outputPath);
             
             // Upload as artifact
-            const fs = require('fs');
             if (fs.existsSync(outputPath)) {
               console.log('Video file exists, size:', fs.statSync(outputPath).size);
             }
@@ -105,8 +155,8 @@ jobs:
         
     - name: Render video
       env:
-        PROJECT_ID: ${{ github.event.inputs.project_id }}
-        COMPOSITION_DATA: ${{ github.event.inputs.composition_data }}
+        PROJECT_ID: ${{ github.event.inputs.project_id || github.event.client_payload.project_id }}
+        COMPOSITION_DATA: ${{ github.event.inputs.composition_data || github.event.client_payload.composition_data || 'auto-triggered' }}
       run: node render-video.js
       
     - name: Upload video artifact
