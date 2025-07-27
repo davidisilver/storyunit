@@ -21,6 +21,8 @@ import {
   WandSparklesIcon,
   CrossIcon,
   XIcon,
+  TypeIcon,
+  SparklesIcon,
 } from "lucide-react";
 import { MediaItemRow } from "./media-panel";
 import { Button } from "./ui/button";
@@ -56,6 +58,7 @@ import { LoadingIcon } from "./ui/icons";
 import { getMediaMetadata } from "@/lib/ffmpeg";
 import CameraMovement from "./camera-control";
 import VideoFrameSelector from "./video-frame-selector";
+import { nanoid } from "nanoid";
 
 type ModelEndpointPickerProps = {
   mediaType: string;
@@ -158,6 +161,22 @@ export default function RightPanel({
   );
   const handleMediaTypeChange = (mediaType: string) => {
     setMediaType(mediaType as MediaType);
+    
+    // For text, we don't need an endpoint - it's user input
+    if (mediaType === "text") {
+      setGenerateData({ 
+        text: "Sample Text",
+        fontSize: 48,
+        fontFamily: "Arial",
+        fontWeight: "bold",
+        color: "white",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        textAlign: "center",
+        position: "bottom"
+      });
+      return;
+    }
+    
     const endpoint = AVAILABLE_ENDPOINTS.find(
       (endpoint) => endpoint.category === mediaType,
     );
@@ -201,6 +220,15 @@ export default function RightPanel({
     duration?: string;
     camera_fixed?: boolean;
     seed?: number;
+    // Text-specific parameters
+    text?: string;
+    fontSize?: number;
+    fontFamily?: string;
+    fontWeight?: string;
+    color?: string;
+    backgroundColor?: string;
+    textAlign?: "left" | "center" | "right";
+    position?: "top" | "center" | "bottom";
   };
 
   const aspectRatioMap = {
@@ -289,6 +317,47 @@ export default function RightPanel({
   });
 
   const handleOnGenerate = async () => {
+    if (!generateData.prompt?.trim() && mediaType !== "text") {
+      toast({
+        title: "Missing prompt",
+        description: "Please enter a prompt to generate content.",
+      });
+      return;
+    }
+
+    // For text, create a simple text item without any AI generation
+    if (mediaType === "text") {
+      const textItem: MediaItem = {
+        id: nanoid(),
+        kind: "generated",
+        endpointId: "text-input",
+        requestId: nanoid(),
+        projectId,
+        mediaType: "text",
+        status: "completed",
+        createdAt: Date.now(),
+        input: {
+          text: generateData.text || "Sample Text",
+          fontSize: generateData.fontSize || 48,
+          fontFamily: generateData.fontFamily || "Arial",
+          fontWeight: generateData.fontWeight || "bold",
+          color: generateData.color || "white",
+          backgroundColor: generateData.backgroundColor || "rgba(0, 0, 0, 0.7)",
+          textAlign: generateData.textAlign || "center",
+          position: generateData.position || "bottom",
+        },
+      };
+
+      await db.media.create(textItem);
+      toast({
+        title: "Text added",
+        description: "Text has been added to your project.",
+      });
+      handleOnOpenChange(false);
+      return;
+    }
+
+    // For non-text media types, use the existing AI generation system
     await createJob.mutateAsync({} as any, {
       onSuccess: async () => {
         if (!createJob.isError) {
@@ -361,6 +430,9 @@ export default function RightPanel({
       const mediaType = file.type.split("/")[0];
       const outputType = mediaType === "audio" ? "music" : mediaType;
 
+      // Skip text type since text is user input, not file uploads
+      if (outputType === "text") continue;
+
       const data: Omit<MediaItem, "id"> = {
         projectId,
         kind: "uploaded",
@@ -384,7 +456,9 @@ export default function RightPanel({
         await db.media
           .update(media.id, {
             ...media,
-            metadata: mediaMetadata?.media || {},
+            metadata: mediaMetadata && typeof mediaMetadata === 'object' && 'media' in mediaMetadata 
+              ? mediaMetadata.media || {} 
+              : {},
           })
           .finally(() => {
             queryClient.invalidateQueries({
@@ -423,7 +497,7 @@ export default function RightPanel({
               onClick={() => handleMediaTypeChange("image")}
               className={cn(
                 mediaType === "image" && "bg-white/10",
-                "h-14 flex flex-col justify-center w-1/4 rounded-md gap-2 items-center",
+                "h-14 flex flex-col justify-center w-1/5 rounded-md gap-2 items-center",
               )}
             >
               <ImageIcon className="w-4 h-4 opacity-50" />
@@ -434,7 +508,7 @@ export default function RightPanel({
               onClick={() => handleMediaTypeChange("video")}
               className={cn(
                 mediaType === "video" && "bg-white/10",
-                "h-14 flex flex-col justify-center w-1/4 rounded-md gap-2 items-center",
+                "h-14 flex flex-col justify-center w-1/5 rounded-md gap-2 items-center",
               )}
             >
               <VideoIcon className="w-4 h-4 opacity-50" />
@@ -445,7 +519,7 @@ export default function RightPanel({
               onClick={() => handleMediaTypeChange("voiceover")}
               className={cn(
                 mediaType === "voiceover" && "bg-white/10",
-                "h-14 flex flex-col justify-center w-1/4 rounded-md gap-2 items-center",
+                "h-14 flex flex-col justify-center w-1/5 rounded-md gap-2 items-center",
               )}
             >
               <MicIcon className="w-4 h-4 opacity-50" />
@@ -456,11 +530,22 @@ export default function RightPanel({
               onClick={() => handleMediaTypeChange("music")}
               className={cn(
                 mediaType === "music" && "bg-white/10",
-                "h-14 flex flex-col justify-center w-1/4 rounded-md gap-2 items-center",
+                "h-14 flex flex-col justify-center w-1/5 rounded-md gap-2 items-center",
               )}
             >
               <MusicIcon className="w-4 h-4 opacity-50" />
               <span className="text-[10px]">Music</span>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => handleMediaTypeChange("text")}
+              className={cn(
+                mediaType === "text" && "bg-white/10",
+                "h-14 flex flex-col justify-center w-1/5 rounded-md gap-2 items-center",
+              )}
+            >
+              <TypeIcon className="w-4 h-4 opacity-50" />
+              <span className="text-[10px]">Text</span>
             </Button>
           </div>
           <div className="flex flex-col gap-2 mt-2 justify-start font-medium text-base">
@@ -597,29 +682,158 @@ export default function RightPanel({
               </div>
             </div>
           ))}
-          {endpoint?.prompt !== false && (
+          <div className="flex flex-col gap-4">
+            {mediaType === "text" ? (
+              // Text input fields
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="text-content">Text Content</Label>
+                  <Textarea
+                    id="text-content"
+                    placeholder="Enter your text here..."
+                    value={generateData.text || ""}
+                    onChange={(e) =>
+                      setGenerateData({ text: e.target.value })
+                    }
+                    className="min-h-[100px]"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="font-size">Font Size</Label>
+                    <Input
+                      id="font-size"
+                      type="number"
+                      value={generateData.fontSize || 48}
+                      onChange={(e) =>
+                        setGenerateData({ fontSize: parseInt(e.target.value) || 48 })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="font-family">Font Family</Label>
+                    <Select
+                      value={generateData.fontFamily || "Arial"}
+                      onValueChange={(value) =>
+                        setGenerateData({ fontFamily: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Arial">Arial</SelectItem>
+                        <SelectItem value="Helvetica">Helvetica</SelectItem>
+                        <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                        <SelectItem value="Georgia">Georgia</SelectItem>
+                        <SelectItem value="Verdana">Verdana</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="text-color">Text Color</Label>
+                    <Input
+                      id="text-color"
+                      type="color"
+                      value={generateData.color || "#ffffff"}
+                      onChange={(e) =>
+                        setGenerateData({ color: e.target.value })
+                      }
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="bg-color">Background Color</Label>
+                    <Input
+                      id="bg-color"
+                      type="color"
+                      value={generateData.backgroundColor || "#000000"}
+                      onChange={(e) =>
+                        setGenerateData({ backgroundColor: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="text-align">Text Alignment</Label>
+                    <Select
+                      value={generateData.textAlign || "center"}
+                      onValueChange={(value: "left" | "center" | "right") =>
+                        setGenerateData({ textAlign: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="left">Left</SelectItem>
+                        <SelectItem value="center">Center</SelectItem>
+                        <SelectItem value="right">Right</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="position">Position</Label>
+                    <Select
+                      value={generateData.position || "bottom"}
+                      onValueChange={(value: "top" | "center" | "bottom") =>
+                        setGenerateData({ position: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="top">Top</SelectItem>
+                        <SelectItem value="center">Center</SelectItem>
+                        <SelectItem value="bottom">Bottom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Regular prompt input for other media types
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="prompt">Prompt</Label>
+                  <Textarea
+                    id="prompt"
+                    placeholder="Describe what you want to generate..."
+                    value={generateData.prompt || ""}
+                    onChange={(e) =>
+                      setGenerateData({ prompt: e.target.value })
+                    }
+                    className="min-h-[100px]"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          {endpoint?.prompt !== false && mediaType !== "text" && (
             <div className="relative bg-border rounded-lg pb-10 placeholder:text-base w-full  resize-none">
-              <Textarea
-                className="text-base shadow-none focus:!ring-0 placeholder:text-base w-full h-32 resize-none"
-                placeholder="Imagine..."
-                value={generateData.prompt}
-                rows={3}
-                onChange={(e) => setGenerateData({ prompt: e.target.value })}
-              />
               <WithTooltip tooltip="Enhance your prompt with AI-powered suggestions.">
                 <div className="absolute bottom-2 right-2">
                   <Button
-                    variant="secondary"
-                    disabled={enhance.isPending}
-                    className="bg-purple-400/10 text-purple-400 text-xs rounded-full h-6 px-3"
+                    type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => enhance.mutate()}
+                    disabled={enhance.isPending}
                   >
                     {enhance.isPending ? (
-                      <LoadingIcon />
+                      <LoadingIcon className="w-4 h-4" />
                     ) : (
-                      <WandSparklesIcon className="opacity-50" />
+                      <SparklesIcon className="w-4 h-4" />
                     )}
-                    Enhance Prompt
                   </Button>
                 </div>
               </WithTooltip>

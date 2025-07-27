@@ -14,12 +14,13 @@ export const PROJECT_PLACEHOLDER: VideoProject = {
   aspectRatio: "16:9",
 };
 
-export type VideoTrackType = "video" | "music" | "voiceover";
+export type VideoTrackType = "video" | "music" | "voiceover" | "text";
 
 export const TRACK_TYPE_ORDER: Record<VideoTrackType, number> = {
   video: 1,
   music: 2,
   voiceover: 3,
+  text: 4,
 };
 
 export type VideoTrack = {
@@ -47,7 +48,7 @@ export type VideoKeyFrame = {
 };
 
 export type KeyFrameData = {
-  type: "prompt" | "image" | "video" | "voiceover" | "music";
+  type: "prompt" | "image" | "video" | "voiceover" | "music" | "text";
   mediaId: string;
 } & (
   | {
@@ -64,6 +65,17 @@ export type KeyFrameData = {
       prompt: string;
       url: string;
     }
+  | {
+      type: "text";
+      text: string;
+      fontSize?: number;
+      fontFamily?: string;
+      fontWeight?: string;
+      color?: string;
+      backgroundColor?: string;
+      textAlign?: "left" | "center" | "right";
+      position?: "top" | "center" | "bottom";
+    }
 );
 
 export type MediaItem = {
@@ -72,7 +84,7 @@ export type MediaItem = {
   endpointId?: string;
   requestId?: string;
   projectId: string;
-  mediaType: "image" | "video" | "music" | "voiceover";
+  mediaType: "image" | "video" | "music" | "voiceover" | "text";
   status: "pending" | "running" | "completed" | "failed";
   createdAt: number;
   input?: Record<string, any>;
@@ -97,7 +109,7 @@ export type SavedPrompt = {
   id: string;
   projectId: string;
   prompt: string;
-  mediaType: "image" | "video" | "music" | "voiceover";
+  mediaType: "image" | "video" | "music" | "voiceover" | "text";
   createdAt: number;
   title?: string;
   description?: string;

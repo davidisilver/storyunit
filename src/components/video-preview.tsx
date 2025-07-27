@@ -16,6 +16,7 @@ import { useProjectId, useVideoProjectStore } from "@/data/store";
 import { cn, resolveDuration, resolveMediaUrl } from "@/lib/utils";
 import { Player, type PlayerRef } from "@remotion/player";
 import { preloadVideo, preloadAudio } from "@remotion/preload";
+import { fitText } from "@remotion/layout-utils";
 import { useCallback, useEffect } from "react";
 import {
   AbsoluteFill,
@@ -109,6 +110,13 @@ const MainComposition: React.FC<VideoCompositionProps> = ({
               mediaItems={mediaItems}
             />
           )}
+          {track.type === "text" && (
+            <TextTrackSequence
+              track={track}
+              frames={frames[track.id] || []}
+              mediaItems={mediaItems}
+            />
+          )}
         </Sequence>
       ))}
     </AbsoluteFill>
@@ -183,6 +191,108 @@ const AudioTrackSequence: React.FC<TrackSequenceProps> = ({
         );
       })}
     </>
+  );
+};
+
+const TextTrackSequence: React.FC<TrackSequenceProps> = ({
+  frames,
+  mediaItems,
+}) => {
+  return (
+    <AbsoluteFill>
+      {frames.map((frame) => {
+        if (frame.data.type !== "text") return null;
+
+        const textData = frame.data;
+        const duration = frame.duration || 5000;
+        const durationInFrames = Math.floor(duration / (1000 / FPS));
+
+        return (
+          <Sequence
+            key={frame.id}
+            from={Math.floor(frame.timestamp / (1000 / FPS))}
+            durationInFrames={durationInFrames}
+            premountFor={3000}
+          >
+            <TextOverlay
+              text={textData.text}
+              fontSize={textData.fontSize}
+              fontFamily={textData.fontFamily}
+              fontWeight={textData.fontWeight}
+              color={textData.color}
+              backgroundColor={textData.backgroundColor}
+              textAlign={textData.textAlign}
+              position={textData.position}
+            />
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+interface TextOverlayProps {
+  text: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  color?: string;
+  backgroundColor?: string;
+  textAlign?: "left" | "center" | "right";
+  position?: "top" | "center" | "bottom";
+}
+
+const TextOverlay: React.FC<TextOverlayProps> = ({
+  text,
+  fontSize = 48,
+  fontFamily = "Arial",
+  fontWeight = "bold",
+  color = "white",
+  backgroundColor = "rgba(0, 0, 0, 0.7)",
+  textAlign = "center",
+  position = "bottom",
+}) => {
+  // Use fitText to ensure text fits within the composition
+  const { fontSize: fittedFontSize } = fitText({
+    text,
+    withinWidth: 800, // Adjust based on your composition width
+    fontFamily,
+    fontWeight,
+  });
+
+  const finalFontSize = fontSize || fittedFontSize;
+
+  const getPositionStyle = () => {
+    switch (position) {
+      case "top":
+        return { top: 20, bottom: "auto" };
+      case "center":
+        return { top: "50%", transform: "translateY(-50%)" };
+      case "bottom":
+      default:
+        return { bottom: 20, top: "auto" };
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: 20,
+        right: 20,
+        padding: "10px 20px",
+        backgroundColor,
+        borderRadius: "8px",
+        fontSize: finalFontSize,
+        fontFamily,
+        fontWeight,
+        color,
+        textAlign,
+        ...getPositionStyle(),
+      }}
+    >
+      {text}
+    </div>
   );
 };
 

@@ -21,6 +21,7 @@ import {
   LoaderCircleIcon,
   CloudUploadIcon,
   SparklesIcon,
+  TypeIcon,
 } from "lucide-react";
 import { MediaItemPanel } from "./media-panel";
 import { Button } from "./ui/button";
@@ -107,7 +108,9 @@ export default function LeftPanel() {
         await db.media
           .update(media.id, {
             ...media,
-            metadata: mediaMetadata?.media || {},
+            metadata: mediaMetadata && typeof mediaMetadata === 'object' && 'media' in mediaMetadata 
+              ? mediaMetadata.media || {} 
+              : {},
           })
           .finally(() => {
             queryClient.invalidateQueries({
@@ -227,6 +230,13 @@ export default function LeftPanel() {
                 >
                   <FilmIcon className="w-4 h-4 opacity-50" />
                   Video
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-sm"
+                  onClick={() => setMediaType("text")}
+                >
+                  <TypeIcon className="w-4 h-4 opacity-50" />
+                  Text
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

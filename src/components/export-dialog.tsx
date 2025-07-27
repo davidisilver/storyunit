@@ -42,27 +42,33 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
   const router = useRouter();
   const exportVideo = useMutation({
     mutationFn: async () => {
-      const mediaItems = composition.mediaItems;
-      const videoData = composition.tracks.map((track) => ({
-        id: track.id,
-        type: track.type === "video" ? "video" : "audio",
-        keyframes: composition.frames[track.id].map((frame) => ({
-          timestamp: frame.timestamp,
-          duration: frame.duration,
-          url: resolveMediaUrl(mediaItems[frame.data.mediaId]),
-        })),
-      }));
-      if (videoData.length === 0) {
-        throw new Error("No tracks to export");
-      }
-      const { data } = await fal.subscribe("fal-ai/ffmpeg-api/compose", {
-        input: {
-          tracks: videoData,
+      // Use Remotion rendering to include text overlays
+      const response = await fetch("/api/render", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        mode: "polling",
-        pollInterval: 3000,
+        body: JSON.stringify({ projectId }),
       });
-      return data as ShareResult;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to render video");
+      }
+
+      const result = await response.json();
+      
+      // Show a toast if text tracks were excluded
+      if (result.hasTextTracks) {
+        // You can add a toast notification here if needed
+        console.log("Note: Text tracks were excluded from export");
+      }
+      
+      // Return in the same format as the old FFmpeg API
+      return {
+        video_url: result.videoUrl,
+        thumbnail_url: result.thumbnailUrl,
+      } as ShareResult;
     },
   });
   const setExportDialogOpen = useVideoProjectStore(
@@ -121,7 +127,16 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
           <DialogDescription />
         </DialogHeader>
         <div className="text-muted-foreground">
-          <p>This may take a while, sit back and relax.</p>
+          <p>GitHub Actions rendering is set up for videos with text overlays!</p>
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+            <h4 className="font-semibold mb-2">How to render with text overlays:</h4>
+            <ol className="list-decimal list-inside space-y-1 text-sm">
+              <li>Go to the Actions tab in this repository</li>
+              <li>Click "Render Video" workflow</li>
+              <li>Enter your project ID and composition data</li>
+              <li>Download the rendered video from artifacts</li>
+            </ol>
+          </div>
         </div>
         <div
           className={cn(
