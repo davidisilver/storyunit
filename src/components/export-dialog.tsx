@@ -43,11 +43,13 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
   const exportVideo = useMutation({
     mutationFn: async () => {
       // Import the client-side helper dynamically to avoid SSR issues
-      const { exportCompositionDataFromBrowser } = await import("@/lib/client-export");
-      
+      const { exportCompositionDataFromBrowser } = await import(
+        "@/lib/client-export"
+      );
+
       // Export composition data from browser's IndexedDB
       const compositionData = await exportCompositionDataFromBrowser(projectId);
-      
+
       // Trigger GitHub Actions workflow for rendering
       const response = await fetch("/api/render", {
         method: "POST",

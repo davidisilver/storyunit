@@ -49,26 +49,29 @@ export async function POST(request: NextRequest) {
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `token ${githubToken}`,
-        "Accept": "application/vnd.github.v3+json",
+        Authorization: `token ${githubToken}`,
+        Accept: "application/vnd.github.v3+json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         ref: "main",
         inputs: {
           project_id: projectId,
-          composition_data: JSON.stringify(compositionData)
-        }
-      })
+          composition_data: JSON.stringify(compositionData),
+        },
+      }),
     });
 
     if (!response.ok) {
       const errorData = await response.text();
       console.error("GitHub API error:", response.status, errorData);
-      return NextResponse.json({ 
-        error: "Failed to trigger GitHub Actions workflow",
-        details: `GitHub API returned ${response.status}: ${errorData}`
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Failed to trigger GitHub Actions workflow",
+          details: `GitHub API returned ${response.status}: ${errorData}`,
+        },
+        { status: 500 },
+      );
     }
 
     // Get the workflow run ID
@@ -96,9 +99,9 @@ export async function POST(request: NextRequest) {
         title: compositionData.project?.title || projectId,
         tracks: compositionData.tracks?.length || 0,
         mediaItems: Object.keys(compositionData.mediaItems || {}).length,
-        hasTextTracks: compositionData.tracks?.some(
-          (track) => track.type === "text",
-        ) || false,
+        hasTextTracks:
+          compositionData.tracks?.some((track) => track.type === "text") ||
+          false,
       },
       nextSteps: [
         "1. Go to the Actions tab in your repository",

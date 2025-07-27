@@ -7,7 +7,9 @@ export interface CompositionData {
   mediaItems: Record<string, any>;
 }
 
-export async function exportCompositionDataFromBrowser(projectId: string): Promise<CompositionData> {
+export async function exportCompositionDataFromBrowser(
+  projectId: string,
+): Promise<CompositionData> {
   try {
     // Get project data
     const project = await db.projects.find(projectId);
@@ -41,4 +43,4 @@ export async function exportCompositionDataFromBrowser(projectId: string): Promi
     console.error("Error exporting composition data:", error);
     throw error;
   }
-} 
+}

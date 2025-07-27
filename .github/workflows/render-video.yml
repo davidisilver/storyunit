@@ -101,6 +101,7 @@ jobs:
             const bundled = await bundle({
               entryPoint: path.join(process.cwd(), 'src/components/video-preview.tsx'),
               webpackOverride: (config) => config,
+              ignoreRegisterRootWarning: true,
             });
             
             // Get the composition
