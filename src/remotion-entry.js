@@ -1,28 +1,141 @@
 const React = require("react");
-const { registerRoot, Composition, AbsoluteFill } = require("remotion");
+const { registerRoot, Composition, AbsoluteFill, useCurrentFrame, useVideoConfig } = require("remotion");
 
-// Super simple test component
-const MainComposition = () => {
+// Main video composition component
+const MainComposition = ({ compositionData }) => {
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
+  
   console.log("MainComposition is being executed!");
-  console.log("This is a test log from the Remotion component!");
+  console.log("Composition data:", compositionData);
+  console.log("Current frame:", frame);
+  console.log("FPS:", fps);
+  console.log("Duration in frames:", durationInFrames);
 
+  // If no composition data, show a placeholder
+  if (!compositionData) {
+    return React.createElement(AbsoluteFill, {
+      style: {
+        backgroundColor: "#1a1a1a",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: "60px",
+        fontWeight: "bold",
+      }
+    }, 
+      React.createElement("div", {}, "No composition data provided")
+    );
+  }
+
+  // Calculate current time in milliseconds
+  const currentTimeMs = (frame / fps) * 1000;
+  
+  // Find active frames at current time
+  const activeFrames = [];
+  
+  for (const [trackId, trackFrames] of Object.entries(compositionData.frames)) {
+    for (const frameData of trackFrames) {
+      const frameStart = frameData.timestamp;
+      const frameEnd = frameData.timestamp + frameData.duration;
+      
+      if (currentTimeMs >= frameStart && currentTimeMs < frameEnd) {
+        activeFrames.push({
+          trackId,
+          frameData,
+          mediaItem: compositionData.mediaItems[frameData.data.mediaId]
+        });
+      }
+    }
+  }
+
+  console.log("Active frames at current time:", activeFrames);
+
+  // Render the composition
   return React.createElement(AbsoluteFill, {
     style: {
-      backgroundColor: "orange",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "white",
-      fontSize: "80px",
-      fontWeight: "bold",
+      backgroundColor: "#000000",
+      position: "relative",
+      overflow: "hidden"
     }
   }, 
-    React.createElement("div", {}, 
-      React.createElement("div", {}, "ORANGE TEST"),
-      React.createElement("div", { 
-        style: { fontSize: "40px", marginTop: "20px" } 
-      }, "JS Component is working!")
-    )
+    // Render background
+    React.createElement("div", {
+      style: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#1a1a1a"
+      }
+    }),
+    
+    // Render active frames
+    ...activeFrames.map(({ frameData, mediaItem }, index) => {
+      if (mediaItem?.mediaType === "video" && mediaItem?.output?.video?.url) {
+        // Render video
+        return React.createElement("video", {
+          key: `${frameData.id}-${index}`,
+          src: mediaItem.output.video.url,
+          style: {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover"
+          },
+          autoPlay: true,
+          muted: true,
+          loop: true
+        });
+      } else if (mediaItem?.mediaType === "text" && mediaItem?.input?.text) {
+        // Render text overlay
+        const textStyle = {
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          color: mediaItem.input.color || "white",
+          fontSize: `${mediaItem.input.fontSize || 48}px`,
+          fontFamily: mediaItem.input.fontFamily || "Arial",
+          fontWeight: mediaItem.input.fontWeight || "normal",
+          textAlign: mediaItem.input.textAlign || "center",
+          backgroundColor: mediaItem.input.backgroundColor || "transparent",
+          padding: "20px",
+          borderRadius: "10px",
+          zIndex: 10
+        };
+        
+        return React.createElement("div", {
+          key: `${frameData.id}-${index}`,
+          style: textStyle
+        }, mediaItem.input.text);
+      }
+      
+      return null;
+    }),
+    
+    // Render debug info (only in development)
+    process.env.NODE_ENV === "development" ? React.createElement("div", {
+      style: {
+        position: "absolute",
+        top: "10px",
+        left: "10px",
+        color: "white",
+        fontSize: "16px",
+        backgroundColor: "rgba(0,0,0,0.7)",
+        padding: "10px",
+        borderRadius: "5px",
+        zIndex: 100
+      }
+    }, 
+      React.createElement("div", {}, `Frame: ${frame}`),
+      React.createElement("div", {}, `Time: ${(currentTimeMs / 1000).toFixed(2)}s`),
+      React.createElement("div", {}, `Active: ${activeFrames.length}`)
+    ) : null
   );
 };
 
@@ -37,6 +150,6 @@ registerRoot(() => {
     durationInFrames: 150,
     fps: 30,
     width: 1920,
-    height: 1080
+    height: 1080,
   });
 });
