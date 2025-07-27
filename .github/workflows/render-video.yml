@@ -113,10 +113,13 @@ jobs:
             
             // Get the composition
             const compositions = await getCompositions(bundled);
-            const compositionToRender = compositions.find((c) => c.id === 'video-composition');
+            console.log('Available compositions:', compositions.map(c => c.id));
+            
+            // For the simple test, use the "test" composition
+            const compositionToRender = compositions.find((c) => c.id === 'test') || compositions[0];
             
             if (!compositionToRender) {
-              throw new Error('Composition not found');
+              throw new Error('No compositions found');
             }
             
             // Calculate duration based on frames
@@ -137,12 +140,7 @@ jobs:
               serveUrl: bundled,
               codec: 'h264',
               outputLocation: outputPath,
-              inputProps: {
-                project: compositionData.project,
-                tracks: compositionData.tracks,
-                frames: compositionData.frames,
-                mediaItems: compositionData.mediaItems,
-              },
+              inputProps: {},
             });
             
             console.log('Video rendered successfully:', outputPath);
