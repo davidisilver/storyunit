@@ -6,7 +6,6 @@ import {
   Video,
   Img,
 } from "remotion";
-import { fitText } from "@remotion/layout-utils";
 
 // Get composition data from environment variables
 const getCompositionData = () => {
@@ -55,14 +54,7 @@ const TextOverlay = ({
   textAlign?: "left" | "center" | "right";
   position?: "top" | "center" | "bottom";
 }) => {
-  const { fontSize: fittedFontSize } = fitText({
-    text,
-    withinWidth: 800,
-    fontFamily,
-    fontWeight,
-  });
-
-  const finalFontSize = fontSize || fittedFontSize;
+  const finalFontSize = fontSize || 48;
 
   const getPositionStyle = () => {
     switch (position) {
@@ -100,95 +92,28 @@ const TextOverlay = ({
 
 // Main composition component with simplified rendering
 const MainComposition = () => {
-  const compositionData = getCompositionData();
-
-  console.log("MainComposition rendering with data:", {
-    projectId: compositionData.project?.id,
-    tracksCount: compositionData.tracks?.length || 0,
-    framesCount: Object.keys(compositionData.frames || {}).length,
-    mediaItemsCount: Object.keys(compositionData.mediaItems || {}).length,
-  });
-
-  try {
-    const tracks = compositionData.tracks || [];
-    const frames = compositionData.frames || {};
-    const mediaItems = compositionData.mediaItems || {};
-
-    return (
-      <AbsoluteFill>
-        {tracks.map((track: any) => {
-          const trackFrames = frames[track.id] || [];
-
-          return trackFrames.map((frame: any) => {
-            const duration = frame.duration || 5000;
-            const durationInFrames = Math.floor(duration / (1000 / 30)); // 30fps
-            const startFrame = Math.floor(frame.timestamp / (1000 / 30));
-
-            if (track.type === "video" && frame.data.mediaId) {
-              const mediaItem = mediaItems[frame.data.mediaId];
-              if (mediaItem) {
-                // Handle nested URL structure
-                const videoUrl = mediaItem.url || mediaItem.output?.video?.url;
-                if (videoUrl) {
-                  console.log('Rendering video:', videoUrl);
-                  return (
-                    <Sequence
-                      key={frame.id}
-                      from={startFrame}
-                      durationInFrames={durationInFrames}
-                    >
-                      <Video src={videoUrl} />
-                    </Sequence>
-                  );
-                }
-              }
-            }
-
-            if (track.type === "text" && frame.data.type === "text") {
-              const textData = frame.data;
-              console.log('Rendering text overlay:', textData);
-              return (
-                <Sequence
-                  key={frame.id}
-                  from={startFrame}
-                  durationInFrames={durationInFrames}
-                >
-                  <TextOverlay
-                    text={textData.text}
-                    fontSize={textData.fontSize}
-                    fontFamily={textData.fontFamily}
-                    fontWeight={textData.fontWeight}
-                    color={textData.color}
-                    backgroundColor={textData.backgroundColor}
-                    textAlign={textData.textAlign}
-                    position={textData.position}
-                  />
-                </Sequence>
-              );
-            }
-
-            return null;
-          });
-        })}
-      </AbsoluteFill>
-    );
-  } catch (error) {
-    console.error("Error rendering VideoComposition:", error);
-    return (
-      <AbsoluteFill
-        style={{
-          backgroundColor: "purple",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          fontSize: "60px",
-        }}
-      >
-        ERROR: {error instanceof Error ? error.message : String(error)}
-      </AbsoluteFill>
-    );
-  }
+  console.log('MainComposition is being executed!');
+  
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: "green",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontSize: "80px",
+        fontWeight: "bold",
+      }}
+    >
+      <div>
+        <div>MAIN COMPOSITION</div>
+        <div style={{ fontSize: "40px", marginTop: "20px" }}>
+          This should be visible!
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
 };
 
 // Register the root component
