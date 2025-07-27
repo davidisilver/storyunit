@@ -7,7 +7,9 @@ import { useVideoProjectStore } from "@/data/store";
 export function PromptNotebookButton() {
   const promptNotebookOpen = useVideoProjectStore((s) => s.promptNotebookOpen);
   const openPromptNotebook = useVideoProjectStore((s) => s.openPromptNotebook);
-  const closePromptNotebook = useVideoProjectStore((s) => s.closePromptNotebook);
+  const closePromptNotebook = useVideoProjectStore(
+    (s) => s.closePromptNotebook,
+  );
 
   const handleClick = () => {
     if (promptNotebookOpen) {
