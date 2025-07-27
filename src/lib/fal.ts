@@ -3,13 +3,15 @@
 import { createFalClient } from "@fal-ai/client";
 
 export const fal = createFalClient({
-  credentials: process.env.NEXT_PUBLIC_FAL_KEY || (() => {
-    // Fallback to localStorage if no environment variable
-    if (typeof window !== "undefined") {
-      return localStorage?.getItem("falKey") as string;
-    }
-    return undefined;
-  }),
+  credentials:
+    process.env.NEXT_PUBLIC_FAL_KEY ||
+    (() => {
+      // Fallback to localStorage if no environment variable
+      if (typeof window !== "undefined") {
+        return localStorage?.getItem("falKey") as string;
+      }
+      return undefined;
+    }),
   proxyUrl: "/api/fal",
 });
 

@@ -228,9 +228,18 @@ export default function RightPanel({
     input:
       endpointId === "fal-ai/playht/tts/v3" ? generateData.prompt : undefined,
     // Seedance-specific parameters
-    resolution: endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video" ? "1080p" : undefined,
-    duration: endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video" ? String(generateData.duration || 5) : undefined,
-    camera_fixed: endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video" ? false : undefined,
+    resolution:
+      endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video"
+        ? "1080p"
+        : undefined,
+    duration:
+      endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video"
+        ? String(generateData.duration || 5)
+        : undefined,
+    camera_fixed:
+      endpointId === "fal-ai/bytedance/seedance/v1/pro/text-to-video"
+        ? false
+        : undefined,
   };
 
   if (generateData.image) {
