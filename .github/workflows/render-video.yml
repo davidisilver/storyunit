@@ -67,6 +67,9 @@ jobs:
             if (process.env.COMPOSITION_DATA && process.env.COMPOSITION_DATA !== 'auto-triggered') {
               try {
                 const parsedData = JSON.parse(process.env.COMPOSITION_DATA);
+                console.log('🔍 Parsed data keys:', Object.keys(parsedData));
+                console.log('🔍 Has inputs:', !!parsedData.inputs);
+                console.log('🔍 Has composition_data in inputs:', !!parsedData.inputs?.composition_data);
                 
                 // Check if the data is nested (has inputs.composition_data)
                 if (parsedData.inputs && parsedData.inputs.composition_data) {
@@ -128,8 +131,8 @@ jobs:
             }
             
             console.log('Starting video render for project:', projectId);
-            console.log('Tracks:', compositionData.tracks.length);
-            console.log('Media items:', Object.keys(compositionData.mediaItems).length);
+            console.log('Tracks:', compositionData.tracks?.length || 'undefined');
+            console.log('Media items:', Object.keys(compositionData.mediaItems || {}).length);
             
             // Bundle the video composition
             const bundled = await bundle({
