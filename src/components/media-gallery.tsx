@@ -225,8 +225,6 @@ export function MediaGallerySheet({
       await createPrompt.mutateAsync({
         prompt,
         mediaType: selectedMedia.mediaType,
-        title: `Prompt from ${selectedMedia.mediaType} generation`,
-        description: `Saved from ${selectedMedia.mediaType} generation on ${new Date().toLocaleDateString()}`,
       });
 
       toast({

@@ -67,7 +67,9 @@ export const useJobCreator = ({
 export const useSavedPromptCreator = (projectId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (prompt: Omit<SavedPrompt, "id" | "projectId" | "createdAt">) => {
+    mutationFn: async (
+      prompt: Omit<SavedPrompt, "id" | "projectId" | "createdAt">,
+    ) => {
       try {
         console.log("Creating saved prompt:", { ...prompt, projectId });
         const result = await db.savedPrompts.create({

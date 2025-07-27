@@ -66,8 +66,6 @@ export function PromptNotebook({
       await createPrompt.mutateAsync({
         prompt: newPrompt,
         mediaType: mediaType as any,
-        title: newTitle.trim() || undefined,
-        description: newDescription.trim() || undefined,
       });
 
       setNewPrompt("");
@@ -160,24 +158,6 @@ export function PromptNotebook({
           {isAdding && (
             <div className="space-y-3 p-3 border rounded-lg">
               <div className="space-y-2">
-                <Label htmlFor="new-title">Title (optional)</Label>
-                <Input
-                  id="new-title"
-                  placeholder="Enter a title for this prompt..."
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-description">Description (optional)</Label>
-                <Input
-                  id="new-description"
-                  placeholder="Enter a description..."
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="new-prompt">Prompt</Label>
                 <Textarea
                   id="new-prompt"
@@ -226,32 +206,19 @@ export function PromptNotebook({
             >
               {editingId === prompt.id ? (
                 <div className="space-y-2">
-                  <Input
-                    placeholder="Title..."
-                    value={prompt.title || ""}
-                    onChange={(e) =>
-                      handleUpdatePrompt(prompt.id, { title: e.target.value })
-                    }
-                  />
-                  <Input
-                    placeholder="Description..."
-                    value={prompt.description || ""}
-                    onChange={(e) =>
-                      handleUpdatePrompt(prompt.id, {
-                        description: e.target.value,
-                      })
-                    }
-                  />
                   <Textarea
                     placeholder="Prompt..."
                     value={prompt.prompt}
                     onChange={(e) =>
                       handleUpdatePrompt(prompt.id, { prompt: e.target.value })
                     }
-                    rows={2}
+                    rows={3}
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => setEditingId(null)}>
+                    <Button
+                      size="sm"
+                      onClick={() => setEditingId(null)}
+                    >
                       <CheckIcon className="w-4 h-4 mr-2" />
                       Done
                     </Button>
@@ -269,17 +236,7 @@ export function PromptNotebook({
                 <>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      {prompt.title && (
-                        <h4 className="font-medium text-sm truncate">
-                          {prompt.title}
-                        </h4>
-                      )}
-                      {prompt.description && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {prompt.description}
-                        </p>
-                      )}
-                      <p className="text-sm mt-1 line-clamp-2">
+                      <p className="text-sm line-clamp-3">
                         {prompt.prompt}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
