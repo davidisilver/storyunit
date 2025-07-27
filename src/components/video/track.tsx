@@ -79,7 +79,7 @@ function AudioWaveform({ data }: AudioWaveformProps) {
         "fal-ai/ffmpeg-api/waveform",
         {
           input: {
-            media_url: resolveMediaUrl(data),
+            media_url: resolveMediaUrl(data) || "",
             points_per_second: 5,
             precision: 3,
           },
@@ -312,6 +312,83 @@ export function VideoTrackView({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  // Handle text tracks differently
+  if (media.mediaType === "text") {
+    const textData = frame.data.type === "text" ? frame.data : null;
+    if (!textData) return null;
+
+    return (
+      <div
+        ref={trackRef}
+        onMouseDown={handleMouseDown}
+        onContextMenu={(e) => e.preventDefault()}
+        aria-checked={isSelected}
+        onClick={handleOnClick}
+        className={cn(
+          "flex flex-col border border-white/10 rounded-lg",
+          className,
+        )}
+        {...props}
+      >
+        <div
+          className={cn(
+            "flex flex-col select-none rounded overflow-hidden group h-full",
+            {
+              "bg-sky-600": track.type === "video",
+              "bg-teal-500": track.type === "music",
+              "bg-indigo-500": track.type === "voiceover",
+              "bg-orange-500": track.type === "text",
+            },
+          )}
+        >
+          <div className="p-0.5 pl-1 bg-black/10 flex flex-row items-center">
+            <div className="flex flex-row gap-1 text-sm items-center font-semibold text-white/60 w-full">
+              <div className="flex flex-row truncate gap-1 items-center">
+                {createElement(trackIcons[track.type], {
+                  className: "w-5 h-5 text-white",
+                } as React.ComponentProps<
+                  (typeof trackIcons)[typeof track.type]
+                >)}
+                <span className="line-clamp-1 truncate text-sm mb-[2px] w-full ">
+                  {textData.text || "Text"}
+                </span>
+              </div>
+              <div className="flex flex-row shrink-0 flex-1 items-center justify-end">
+                <WithTooltip tooltip="Remove content">
+                  <button
+                    type="button"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={handleOnDelete}
+                  >
+                    <TrashIcon className="w-3 h-3 text-white" />
+                  </button>
+                </WithTooltip>
+              </div>
+            </div>
+          </div>
+          <div className="p-px flex-1 items-center bg-repeat-x h-full max-h-full overflow-hidden relative">
+            <div className="flex items-center justify-center h-full text-white/80 text-xs px-2 text-center">
+              {textData.text || "Text Content"}
+            </div>
+            <div
+              className={cn(
+                "absolute right-0 z-50 top-0 bg-black/20 group-hover:bg-black/40",
+                "rounded-md bottom-0 w-2 m-1 p-px cursor-ew-resize backdrop-blur-md text-white/40",
+                "transition-colors flex flex-col items-center justify-center text-xs tracking-tighter",
+              )}
+              onMouseDown={(e) => handleResize(e, "right")}
+            >
+              <span className="flex gap-[1px]">
+                <span className="w-px h-2 rounded bg-white/40" />
+                <span className="w-px h-2 rounded bg-white/40" />
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={trackRef}
@@ -332,6 +409,7 @@ export function VideoTrackView({
             "bg-sky-600": track.type === "video",
             "bg-teal-500": track.type === "music",
             "bg-indigo-500": track.type === "voiceover",
+            "bg-orange-500": track.type === "text",
           },
         )}
       >
