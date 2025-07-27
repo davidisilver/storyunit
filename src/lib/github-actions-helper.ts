@@ -7,7 +7,9 @@ export interface CompositionData {
   mediaItems: Record<string, any>;
 }
 
-export async function exportCompositionData(projectId: string): Promise<CompositionData> {
+export async function exportCompositionData(
+  projectId: string,
+): Promise<CompositionData> {
   try {
     // Get project data
     const project = await db.projects.find(projectId);
@@ -43,7 +45,10 @@ export async function exportCompositionData(projectId: string): Promise<Composit
   }
 }
 
-export async function triggerGitHubActionsRender(projectId: string, compositionData: CompositionData): Promise<any> {
+export async function triggerGitHubActionsRender(
+  projectId: string,
+  compositionData: CompositionData,
+): Promise<any> {
   const githubToken = process.env.GITHUB_TOKEN;
   const repository = process.env.GITHUB_REPOSITORY;
 
@@ -58,17 +63,17 @@ export async function triggerGitHubActionsRender(projectId: string, compositionD
   const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
-      "Authorization": `token ${githubToken}`,
-      "Accept": "application/vnd.github.v3+json",
+      Authorization: `token ${githubToken}`,
+      Accept: "application/vnd.github.v3+json",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       ref: "main",
       inputs: {
         project_id: projectId,
-        composition_data: JSON.stringify(compositionData)
-      }
-    })
+        composition_data: JSON.stringify(compositionData),
+      },
+    }),
   });
 
   if (!response.ok) {
@@ -77,4 +82,4 @@ export async function triggerGitHubActionsRender(projectId: string, compositionD
   }
 
   return response.json();
-} 
+}

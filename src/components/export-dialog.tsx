@@ -42,18 +42,26 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
   const router = useRouter();
   const exportVideo = useMutation({
     mutationFn: async () => {
+      // Import the client-side helper dynamically to avoid SSR issues
+      const { exportCompositionDataFromBrowser } = await import("@/lib/client-export");
+      
+      // Export composition data from browser's IndexedDB
+      const compositionData = await exportCompositionDataFromBrowser(projectId);
+      
       // Trigger GitHub Actions workflow for rendering
       const response = await fetch("/api/render", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ projectId }),
+        body: JSON.stringify({ projectId, compositionData }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to trigger GitHub Actions workflow");
+        throw new Error(
+          errorData.error || "Failed to trigger GitHub Actions workflow",
+        );
       }
 
       const result = await response.json();
@@ -138,7 +146,9 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
                   <ul className="text-sm space-y-1">
                     <li>📁 Project: {exportVideo.data.projectInfo.title}</li>
                     <li>🎬 Tracks: {exportVideo.data.projectInfo.tracks}</li>
-                    <li>📁 Media Items: {exportVideo.data.projectInfo.mediaItems}</li>
+                    <li>
+                      📁 Media Items: {exportVideo.data.projectInfo.mediaItems}
+                    </li>
                     {exportVideo.data.projectInfo.hasTextTracks && (
                       <li className="text-orange-600 dark:text-orange-400">
                         ✨ Includes text overlays!
@@ -156,11 +166,13 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
                   <li>Download the video from artifacts</li>
                 </ol>
                 {exportVideo.data.actionsUrl && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-3"
-                    onClick={() => window.open(exportVideo.data.actionsUrl, '_blank')}
+                    onClick={() =>
+                      window.open(exportVideo.data.actionsUrl, "_blank")
+                    }
                   >
                     Open Actions Tab
                   </Button>
@@ -170,7 +182,8 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
           ) : (
             <div className="space-y-4">
               <p>
-                Click "Export" to trigger GitHub Actions rendering with text overlays!
+                Click "Export" to trigger GitHub Actions rendering with text
+                overlays!
               </p>
               <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
                 <h4 className="font-semibold mb-2">What happens:</h4>
@@ -230,7 +243,7 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
           {exportVideo.data?.actionsUrl && (
             <Button
               variant="secondary"
-              onClick={() => window.open(exportVideo.data.actionsUrl, '_blank')}
+              onClick={() => window.open(exportVideo.data.actionsUrl, "_blank")}
               disabled={actionsDisabled}
             >
               <ShareIcon className="w-4 h-4 opacity-50" />
@@ -241,7 +254,9 @@ export function ExportDialog({ onOpenChange, ...props }: ExportDialogProps) {
             onClick={() => exportVideo.mutate()}
             disabled={actionsDisabled}
           >
-            {exportVideo.isPending ? "Triggering..." : "Export with GitHub Actions"}
+            {exportVideo.isPending
+              ? "Triggering..."
+              : "Export with GitHub Actions"}
           </Button>
         </DialogFooter>
       </DialogContent>
