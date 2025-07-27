@@ -30,6 +30,7 @@ import {
   MicIcon,
   MusicIcon,
   TrashIcon,
+  BookOpenIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
@@ -38,6 +39,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { db } from "@/data/db";
 import { LoadingIcon } from "./ui/icons";
 import { AVAILABLE_ENDPOINTS } from "@/lib/fal";
+import { useSavedPromptCreator } from "@/data/mutations";
+import { toast } from "@/hooks/use-toast";
 
 type MediaGallerySheetProps = ComponentProps<typeof Sheet> & {
   selectedMediaId: string;
@@ -199,6 +202,38 @@ export function MediaGallerySheet({
       close();
     },
   });
+
+  const createPrompt = useSavedPromptCreator(projectId);
+
+  const handleSavePrompt = async () => {
+    const prompt = selectedMedia?.input?.prompt;
+    if (!prompt) {
+      toast({
+        title: "No prompt to save",
+        description: "This media item doesn't have a prompt to save.",
+      });
+      return;
+    }
+
+    try {
+      await createPrompt.mutateAsync({
+        prompt,
+        mediaType: selectedMedia.mediaType,
+        title: `Prompt from ${selectedMedia.mediaType} generation`,
+        description: `Saved from ${selectedMedia.mediaType} generation on ${new Date().toLocaleDateString()}`,
+      });
+
+      toast({
+        title: "Prompt saved",
+        description: "Your prompt has been saved to the notebook.",
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to save prompt",
+        description: "Please try again.",
+      });
+    }
+  };
   return (
     <Sheet {...props}>
       <SheetOverlay className="pointer-events-none flex flex-col" />
@@ -291,6 +326,18 @@ export function MediaGallerySheet({
               >
                 <ImagesIcon className="w-4 h-4 opacity-50" />
                 Re-run
+              </Button>
+              <Button
+                onClick={handleSavePrompt}
+                variant="secondary"
+                disabled={deleteMedia.isPending || createPrompt.isPending || !selectedMedia?.input?.prompt}
+              >
+                {createPrompt.isPending ? (
+                  <LoadingIcon />
+                ) : (
+                  <BookOpenIcon className="w-4 h-4 opacity-50" />
+                )}
+                Save Prompt
               </Button>
               <Button
                 variant="secondary"

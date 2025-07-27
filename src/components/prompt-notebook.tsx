@@ -87,7 +87,10 @@ export function PromptNotebook({
     }
   };
 
-  const handleUpdatePrompt = async (id: string, updates: Partial<SavedPrompt>) => {
+  const handleUpdatePrompt = async (
+    id: string,
+    updates: Partial<SavedPrompt>,
+  ) => {
     try {
       await updatePrompt.mutateAsync({ id, prompt: updates });
       setEditingId(null);
@@ -119,7 +122,7 @@ export function PromptNotebook({
   };
 
   const filteredPrompts = savedPrompts.filter(
-    (prompt) => prompt.mediaType === mediaType
+    (prompt) => prompt.mediaType === mediaType,
   );
 
   return (
@@ -248,10 +251,7 @@ export function PromptNotebook({
                     rows={2}
                   />
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => setEditingId(null)}
-                    >
+                    <Button size="sm" onClick={() => setEditingId(null)}>
                       <CheckIcon className="w-4 h-4 mr-2" />
                       Done
                     </Button>
@@ -323,4 +323,4 @@ export function PromptNotebook({
       </CollapsibleContent>
     </Collapsible>
   );
-} 
+}
