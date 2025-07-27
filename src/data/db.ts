@@ -4,6 +4,7 @@ import type {
   VideoKeyFrame,
   VideoProject,
   VideoTrack,
+  SavedPrompt,
 } from "./schema";
 
 function open() {
@@ -23,6 +24,11 @@ function open() {
         keyPath: "id",
       });
       mediaStore.createIndex("by_projectId", "projectId");
+
+      const promptStore = db.createObjectStore("saved_prompts", {
+        keyPath: "id",
+      });
+      promptStore.createIndex("by_projectId", "projectId");
     },
   });
 }
@@ -184,6 +190,41 @@ export const db = {
       );
       await tx.objectStore("media_items").delete(id);
       await tx.done;
+    },
+  },
+
+  savedPrompts: {
+    async find(id: string): Promise<SavedPrompt | null> {
+      const db = await open();
+      return db.get("saved_prompts", id);
+    },
+    async listByProject(projectId: string): Promise<SavedPrompt[]> {
+      const db = await open();
+      return db.getAllFromIndex("saved_prompts", "by_projectId", projectId);
+    },
+    async create(prompt: Omit<SavedPrompt, "id">) {
+      const db = await open();
+      const tx = db.transaction("saved_prompts", "readwrite");
+      const result = await tx.store.put({
+        id: crypto.randomUUID(),
+        ...prompt,
+      });
+      await tx.done;
+      return result;
+    },
+    async update(id: string, prompt: Partial<SavedPrompt>) {
+      const db = await open();
+      const existing = await db.get("saved_prompts", id);
+      if (!existing) return;
+      return db.put("saved_prompts", {
+        ...existing,
+        ...prompt,
+        id,
+      });
+    },
+    async delete(id: string) {
+      const db = await open();
+      return db.delete("saved_prompts", id);
     },
   },
 } as const;

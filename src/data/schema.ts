@@ -92,3 +92,13 @@ export type MediaItem = {
       url: string;
     }
 );
+
+export type SavedPrompt = {
+  id: string;
+  projectId: string;
+  prompt: string;
+  mediaType: "image" | "video" | "music" | "voiceover";
+  createdAt: number;
+  title?: string;
+  description?: string;
+};

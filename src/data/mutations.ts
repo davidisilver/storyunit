@@ -2,7 +2,7 @@ import { fal } from "@/lib/fal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { db } from "./db";
 import { queryKeys } from "./queries";
-import type { VideoProject } from "./schema";
+import type { VideoProject, SavedPrompt } from "./schema";
 
 export const useProjectUpdater = (projectId: string) => {
   const queryClient = useQueryClient();
@@ -59,6 +59,53 @@ export const useJobCreator = ({
 
       await queryClient.invalidateQueries({
         queryKey: queryKeys.projectMediaItems(projectId),
+      });
+    },
+  });
+};
+
+export const useSavedPromptCreator = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (prompt: Omit<SavedPrompt, "id" | "projectId" | "createdAt">) =>
+      db.savedPrompts.create({
+        ...prompt,
+        projectId,
+        createdAt: Date.now(),
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projectSavedPrompts(projectId),
+      });
+    },
+  });
+};
+
+export const useSavedPromptUpdater = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      prompt,
+    }: {
+      id: string;
+      prompt: Partial<SavedPrompt>;
+    }) => db.savedPrompts.update(id, prompt),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projectSavedPrompts(projectId),
+      });
+    },
+  });
+};
+
+export const useSavedPromptDeleter = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => db.savedPrompts.delete(id),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projectSavedPrompts(projectId),
       });
     },
   });

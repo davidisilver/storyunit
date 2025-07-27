@@ -22,6 +22,7 @@ export const queryKeys = {
   ],
   projectTracks: (projectId: string) => ["tracks", projectId],
   projectPreview: (projectId: string) => ["preview", projectId],
+  projectSavedPrompts: (projectId: string) => ["savedPrompts", projectId],
 };
 
 export const refreshVideoCache = async (
@@ -102,3 +103,13 @@ export const useVideoComposition = (projectId: string) =>
       } satisfies VideoCompositionData;
     },
   });
+
+export const useProjectSavedPrompts = (projectId: string) => {
+  return useQuery({
+    queryKey: queryKeys.projectSavedPrompts(projectId),
+    queryFn: () => db.savedPrompts.listByProject(projectId),
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
+  });
+};
