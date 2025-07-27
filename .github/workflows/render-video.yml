@@ -115,8 +115,12 @@ jobs:
             const compositions = await getCompositions(bundled);
             console.log('Available compositions:', compositions.map(c => c.id));
             
-            // For the simple test, use the "test" composition
-            const compositionToRender = compositions.find((c) => c.id === 'test') || compositions[0];
+            // Use the test-composition
+            const compositionToRender = compositions.find((c) => c.id === 'test-composition');
+            
+            if (!compositionToRender) {
+              throw new Error('Composition "test-composition" not found');
+            }
             
             if (!compositionToRender) {
               throw new Error('No compositions found');

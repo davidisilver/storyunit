@@ -1,15 +1,15 @@
-import { Composition, AbsoluteFill } from "remotion";
+import { registerRoot, Composition, AbsoluteFill } from "remotion";
 
-// Simplest possible component
+// Simple test component
 const TestComponent = () => (
   <AbsoluteFill style={{ backgroundColor: "red" }} />
 );
 
-// Simple Remotion entry point
-export const RemotionRoot = () => {
+// Register the root component
+registerRoot(() => {
   return (
     <Composition
-      id="test"
+      id="test-composition"
       component={TestComponent}
       durationInFrames={30}
       fps={30}
@@ -17,4 +17,4 @@ export const RemotionRoot = () => {
       height={1080}
     />
   );
-};
+});
